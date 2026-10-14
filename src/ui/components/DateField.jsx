@@ -14,15 +14,19 @@ export default function DateField({ value, onChange,
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const [today, setToday] = useState('');
-  const [view, setView] = useState(value
-    ? { y: +value.slice(0, 4), m: +value.slice(5, 7) - 1 }
-    : null);
+  const [view, setView] = useState(null);
 
-  useEffect(() => {
-    const n = new Date();
-    setToday(`${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`);
-    setView((v) => v ?? { y: n.getFullYear(), m: n.getMonth() });
-  }, []);
+  // Date reads live in the event handler — render stays pure.
+  const toggle = () => {
+    if (!open) {
+      const n = new Date();
+      setToday(`${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`);
+      setView((v) => v ?? (value
+        ? { y: +value.slice(0, 4), m: +value.slice(5, 7) - 1 }
+        : { y: n.getFullYear(), m: n.getMonth() }));
+    }
+    setOpen((o) => !o);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -50,7 +54,7 @@ export default function DateField({ value, onChange,
   return (
     <div className={`sel cal${disabled ? ' disabled' : ''}`} ref={ref}>
       <button type="button" className="sel-btn" disabled={disabled}
-        onClick={() => setOpen((o) => !o)}>
+        onClick={toggle}>
         <span className={`sel-label${value ? '' : ' placeholder'}`}>
           {fmt(value) || placeholder}
         </span>
