@@ -88,11 +88,19 @@ export default function ReleasesView({ releases, onChanged, onOpen }) {
   );
 }
 
-// Nueva release — Gluon's "Crear": OAM version picked from the manifest's
-// GitHub Releases (drafts first, published below), deploy trail from the
-// manifest's environments, and the deployment window (start/end) that gates
-// every env deploy regardless of release state.
+const WIZ_STEPS = [
+  'Seleccionar release',
+  'Información de la release',
+  'Resumen de la confirmación',
+];
+
+// Nueva release — Gluon's "Crear" wizard: left rail with numbered steps,
+// right pane per step. OAM version comes from the manifest's GitHub
+// Releases (drafts first, published below); the trail from the manifest's
+// environments; the deploy window (start/end) gates env deploys
+// server-side regardless of release state.
 function ReleaseModal({ onClose, onCreated }) {
+  const [step, setStep] = useState(0);
   const [options, setOptions] = useState(null);
   const [form, setForm] = useState({
     version: '', description: '', trail: '',
@@ -103,12 +111,19 @@ function ReleaseModal({ onClose, onCreated }) {
 
   useEffect(() => {
     getReleaseOptions()
-      .then((o) => setOptions(o))
+      .then((o) => {
+        setOptions(o);
+        if (o.trails?.length === 1)
+          setForm((f) => ({ ...f, trail: f.trail || o.trails[0].name }));
+      })
       .catch((e) => setError(e.message));
   }, []);
 
-  const ok = form.version && form.description.trim() && form.trail
-    && form.start_date && form.end_date;
+  const stepOk = [
+    form.version && form.trail,
+    form.description.trim() && form.start_date && form.end_date,
+    true,
+  ];
 
   const submit = async () => {
     setBusy(true);
@@ -131,78 +146,136 @@ function ReleaseModal({ onClose, onCreated }) {
   };
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const trailObj = options?.trails?.find((t) => t.name === form.trail);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <h2>Nueva release</h2>
-          <button className="btn btn-outline" onClick={onClose}>✕</button>
-        </div>
-        {error && <div className="alert-error">{error}</div>}
-        <div className="form">
-          <label className="field">
-            <span>Versión OAM del manifest *</span>
-            <select value={form.version} onChange={set('version')}
-              disabled={!options}>
-              <option value="">{options ? 'Seleccionar…' : 'Cargando…'}</option>
-              {(options?.versions || []).map((v) => (
-                <option key={v.version} value={v.version}>
-                  {v.version}{v.draft ? ' (draft)' : ''}
-                </option>
+      <div className="modal modal-wiz" onClick={(e) => e.stopPropagation()}>
+        <div className="wiz-cols">
+          <aside className="wiz-side">
+            <span className="wiz-kind">Release Management</span>
+            <div className="wiz-tpl">DEPLOY-MANIFEST</div>
+            <a className="chip tpl-doc"
+              href="https://github.com/progmise/deploy-manifest#readme"
+              target="_blank" rel="noreferrer">
+              <Ico d={ICON.doc} />Documentación ↗</a>
+            <div className="wiz-steps-v">
+              {WIZ_STEPS.map((l, i) => (
+                <span key={l}
+                  className={`wiz-stepv${step > i ? ' done' : step === i ? ' active' : ''}`}>
+                  <span className="n">{step > i ? '✓' : i + 1}</span>{l}
+                </span>
               ))}
-            </select>
-            <small className="muted">
-              Drafts del manifest primero; las publicadas debajo
-            </small>
-          </label>
-          <label className="field">
-            <span>Breve descripción *</span>
-            <input value={form.description} placeholder="Actualización de perfilado"
-              onChange={set('description')} />
-          </label>
-          <label className="field">
-            <span>Ruta de despliegue *</span>
-            <select value={form.trail} onChange={set('trail')}
-              disabled={!options}>
-              <option value="">{options ? 'Seleccionar…' : 'Cargando…'}</option>
-              {(options?.trails || []).map((t) => (
-                <option key={t.name} value={t.name}>
-                  {t.name} ({t.environments.join(' → ')})
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="field-row">
-            <label className="field">
-              <span>Fecha de inicio *</span>
-              <input type="date" value={form.start_date} onChange={set('start_date')} />
-            </label>
-            <label className="field field-time">
-              <span>Hora</span>
-              <input type="time" value={form.start_time} onChange={set('start_time')} />
-            </label>
+            </div>
+          </aside>
+
+          <div className="wiz-main">
+            {error && <div className="alert-error">{error}</div>}
+
+            {step === 0 && (
+              <div className="form">
+                <label className="field">
+                  <span>Versión OAM del manifest *</span>
+                  <select value={form.version} onChange={set('version')}
+                    disabled={!options}>
+                    <option value="">{options ? 'Seleccionar…' : 'Cargando…'}</option>
+                    {(options?.versions || []).map((v) => (
+                      <option key={v.version} value={v.version}>
+                        {v.version}{v.draft ? ' (draft)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <small className="muted">
+                    Drafts del manifest primero; las publicadas debajo
+                  </small>
+                </label>
+                <label className="field">
+                  <span>Ruta de despliegue *</span>
+                  <select value={form.trail} onChange={set('trail')}
+                    disabled={!options}>
+                    <option value="">{options ? 'Seleccionar…' : 'Cargando…'}</option>
+                    {(options?.trails || []).map((t) => (
+                      <option key={t.name} value={t.name}>
+                        {t.name} ({t.environments.join(' → ')})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            )}
+
+            {step === 1 && (
+              <div className="form">
+                <label className="field">
+                  <span>Breve descripción *</span>
+                  <input value={form.description} placeholder="Actualización de perfilado"
+                    onChange={set('description')} />
+                </label>
+                <div className="field-row">
+                  <label className="field">
+                    <span>Fecha de inicio *</span>
+                    <input type="date" value={form.start_date} onChange={set('start_date')} />
+                  </label>
+                  <label className="field field-time">
+                    <span>Hora</span>
+                    <input type="time" value={form.start_time} onChange={set('start_time')} />
+                  </label>
+                </div>
+                <div className="field-row">
+                  <label className="field">
+                    <span>Fecha de finalización *</span>
+                    <input type="date" value={form.end_date} onChange={set('end_date')} />
+                  </label>
+                  <label className="field field-time">
+                    <span>Hora</span>
+                    <input type="time" value={form.end_time} onChange={set('end_time')} />
+                  </label>
+                </div>
+                <small className="muted">
+                  La ventana de despliegue acota cuándo puede desplegarse cada
+                  ambiente: antes del inicio o después de la finalización,
+                  ningún deploy avanza.
+                </small>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="summary">
+                <table className="summary-table">
+                  <tbody>
+                    <tr><td>Versión OAM del manifest:</td>
+                      <td><code>{form.version}</code></td></tr>
+                    <tr><td>Ruta de despliegue:</td>
+                      <td><strong>{form.trail}</strong>
+                        {trailObj && <span className="muted"> ({trailObj.environments.join(' → ')})</span>}
+                      </td></tr>
+                    <tr><td>Descripción:</td><td>{form.description}</td></tr>
+                    <tr><td>Fecha de inicio:</td>
+                      <td>{form.start_date} {form.start_time}</td></tr>
+                    <tr><td>Fecha de finalización:</td>
+                      <td>{form.end_date} {form.end_time}</td></tr>
+                  </tbody>
+                </table>
+                <p className="muted">
+                  Se registrará la release contra el draft del manifest; su
+                  publicación y los despliegues por ambiente se disparan desde
+                  el detalle, dentro de la ventana indicada.
+                </p>
+              </div>
+            )}
           </div>
-          <div className="field-row">
-            <label className="field">
-              <span>Fecha de finalización *</span>
-              <input type="date" value={form.end_date} onChange={set('end_date')} />
-            </label>
-            <label className="field field-time">
-              <span>Hora</span>
-              <input type="time" value={form.end_time} onChange={set('end_time')} />
-            </label>
-          </div>
-          <small className="muted">
-            La ventana de despliegue acota cuándo puede desplegarse cada ambiente:
-            antes del inicio o después de la finalización, ningún deploy avanza.
-          </small>
         </div>
-        <div className="modal-foot">
-          <button className="btn-text btn-cancel" onClick={onClose}>Cancelar</button>
-          <button className="btn-text btn-next" disabled={!ok || busy} onClick={submit}>
-            {busy ? 'Creando…' : 'Crear release'}
-          </button>
+
+        <div className="wiz-foot">
+          {step > 0
+            ? <button className="btn-text btn-cancel" onClick={() => setStep(step - 1)}>Atrás</button>
+            : <button className="btn-text btn-cancel" onClick={onClose}>Cancelar</button>}
+          {step < 2
+            ? <button className="btn-text btn-next" disabled={!stepOk[step]}
+                onClick={() => setStep(step + 1)}>Siguiente</button>
+            : <button className="btn-text btn-next" disabled={busy} onClick={submit}>
+                {busy ? 'Creando…' : 'Crear release'}
+              </button>}
         </div>
       </div>
     </div>
