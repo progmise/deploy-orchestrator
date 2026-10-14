@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "dev:serve": "node --env-file=.env server/index.js",
     "start": "node server/index.js"
   },
   "dependencies": {

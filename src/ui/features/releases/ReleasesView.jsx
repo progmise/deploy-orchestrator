@@ -18,20 +18,22 @@ const COLUMNS = [
 // the doc icon opens the detail/status view.
 export default function ReleasesView({ releases, onChanged, onOpen }) {
   const [q, setQ] = useState('');
+  const [date, setDate] = useState('');
   const [sort, setSort] = useState({ key: 'release_no', dir: -1 });
   const [showForm, setShowForm] = useState(false);
 
   const rows = useMemo(() => {
     const lq = q.toLowerCase();
-    const list = (releases || []).filter((r) => !lq
+    const list = (releases || []).filter((r) => (!lq
       || r.release_no.toLowerCase().includes(lq)
       || r.description.toLowerCase().includes(lq)
-      || r.version.includes(lq));
+      || r.version.includes(lq))
+      && (!date || `${r.planned_date}`.slice(0, 10) === date));
     const col = COLUMNS.find((c) => c.key === sort.key);
     if (col?.value)
       list.sort((a, b) => String(col.value(a)).localeCompare(String(col.value(b))) * sort.dir);
     return list;
-  }, [releases, q, sort]);
+  }, [releases, q, date, sort]);
 
   const cycle = (key) => setSort((s) =>
     s.key !== key ? { key, dir: 1 } : s.dir === 1 ? { key, dir: -1 } : { key: null, dir: 1 });
@@ -42,10 +44,12 @@ export default function ReleasesView({ releases, onChanged, onOpen }) {
     <div className="card">
       <h2>Buscar releases</h2>
       <SearchRow q={q} setQ={setQ} placeholder="Buscar por número de release…"
-        action={
+        action={<>
+          <input type="date" className="date-filter" value={date}
+            title="Filtrar por fecha prevista" onChange={(e) => setDate(e.target.value)} />
           <button className="btn btn-primary" style={{ marginLeft: 'auto' }}
             onClick={() => setShowForm(true)}>Nueva release +</button>
-        } />
+        </>} />
       <p className="tbl-legend">Lista de releases</p>
       <table>
         <thead>
