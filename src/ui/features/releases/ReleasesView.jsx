@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { createRelease } from '../../../infrastructure/api/catalogApi.js';
+import { useEffect, useMemo, useState } from 'react';
+import { createRelease, getReleaseOptions } from '../../../infrastructure/api/catalogApi.js';
 import { SearchRow } from '../../components/Feedback.jsx';
 import { Ico, ICON } from '../../components/Icons.jsx';
 
@@ -88,19 +88,40 @@ export default function ReleasesView({ releases, onChanged, onOpen }) {
   );
 }
 
+// Nueva release — Gluon's "Crear": OAM version picked from the manifest's
+// GitHub Releases (drafts first, published below), deploy trail from the
+// manifest's environments, and the deployment window (start/end) that gates
+// every env deploy regardless of release state.
 function ReleaseModal({ onClose, onCreated }) {
-  const [form, setForm] = useState({ version: '', description: '', planned_date: '' });
+  const [options, setOptions] = useState(null);
+  const [form, setForm] = useState({
+    version: '', description: '', trail: '',
+    start_date: '', start_time: '00:00', end_date: '', end_time: '23:59',
+  });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
-  const ok = /^\d+\.\d+\.\d+$/.test(form.version.trim())
-    && form.description.trim() && form.planned_date;
+  useEffect(() => {
+    getReleaseOptions()
+      .then((o) => setOptions(o))
+      .catch((e) => setError(e.message));
+  }, []);
+
+  const ok = form.version && form.description.trim() && form.trail
+    && form.start_date && form.end_date;
 
   const submit = async () => {
     setBusy(true);
     setError(null);
     try {
-      await createRelease(form);
+      await createRelease({
+        version: form.version,
+        description: form.description,
+        trail: form.trail,
+        planned_date: form.start_date,
+        deploy_start: `${form.start_date}T${form.start_time}:00`,
+        deploy_end: `${form.end_date}T${form.end_time}:59`,
+      });
       onCreated?.();
       onClose();
     } catch (e) {
@@ -108,6 +129,8 @@ function ReleaseModal({ onClose, onCreated }) {
       setBusy(false);
     }
   };
+
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -119,21 +142,61 @@ function ReleaseModal({ onClose, onCreated }) {
         {error && <div className="alert-error">{error}</div>}
         <div className="form">
           <label className="field">
-            <span>Versión del release *</span>
-            <input value={form.version} placeholder="1.7.0"
-              onChange={(e) => setForm((f) => ({ ...f, version: e.target.value.trim() }))} />
-            <small className="muted">La versión del release de deploy-manifest (tag v&lt;versión&gt;)</small>
+            <span>Versión OAM del manifest *</span>
+            <select value={form.version} onChange={set('version')}
+              disabled={!options}>
+              <option value="">{options ? 'Seleccionar…' : 'Cargando…'}</option>
+              {(options?.versions || []).map((v) => (
+                <option key={v.version} value={v.version}>
+                  {v.version}{v.draft ? ' (draft)' : ''}
+                </option>
+              ))}
+            </select>
+            <small className="muted">
+              Drafts del manifest primero; las publicadas debajo
+            </small>
           </label>
           <label className="field">
             <span>Breve descripción *</span>
             <input value={form.description} placeholder="Actualización de perfilado"
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+              onChange={set('description')} />
           </label>
           <label className="field">
-            <span>Fecha prevista *</span>
-            <input type="date" value={form.planned_date}
-              onChange={(e) => setForm((f) => ({ ...f, planned_date: e.target.value }))} />
+            <span>Ruta de despliegue *</span>
+            <select value={form.trail} onChange={set('trail')}
+              disabled={!options}>
+              <option value="">{options ? 'Seleccionar…' : 'Cargando…'}</option>
+              {(options?.trails || []).map((t) => (
+                <option key={t.name} value={t.name}>
+                  {t.name} ({t.environments.join(' → ')})
+                </option>
+              ))}
+            </select>
           </label>
+          <div className="field-row">
+            <label className="field">
+              <span>Fecha de inicio *</span>
+              <input type="date" value={form.start_date} onChange={set('start_date')} />
+            </label>
+            <label className="field field-time">
+              <span>Hora</span>
+              <input type="time" value={form.start_time} onChange={set('start_time')} />
+            </label>
+          </div>
+          <div className="field-row">
+            <label className="field">
+              <span>Fecha de finalización *</span>
+              <input type="date" value={form.end_date} onChange={set('end_date')} />
+            </label>
+            <label className="field field-time">
+              <span>Hora</span>
+              <input type="time" value={form.end_time} onChange={set('end_time')} />
+            </label>
+          </div>
+          <small className="muted">
+            La ventana de despliegue acota cuándo puede desplegarse cada ambiente:
+            antes del inicio o después de la finalización, ningún deploy avanza.
+          </small>
         </div>
         <div className="modal-foot">
           <button className="btn-text btn-cancel" onClick={onClose}>Cancelar</button>

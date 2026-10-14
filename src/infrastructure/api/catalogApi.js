@@ -35,6 +35,10 @@ export function getReleases() {
   return apiGet('/api/releases');
 }
 
+export function getReleaseOptions() {
+  return apiGet('/api/releases/options');
+}
+
 export function createRelease(body) {
   return apiSend('/api/releases', 'POST', body);
 }

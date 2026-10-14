@@ -317,6 +317,9 @@ tbody tr:hover { background: var(--panel); }
 
 .form { display: flex; flex-direction: column; gap: 14px; }
 .field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
+.field-row { display: flex; gap: 12px; }
+.field-row .field { flex: 1; }
+.field-time { flex: 0 0 110px; }
 .field span { font-weight: 600; }
 .field input, .field textarea, .field select {
   border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;
