@@ -378,6 +378,8 @@ tbody tr:hover { background: var(--panel); }
 .cal-d:hover { background: var(--panel); color: var(--teal); }
 .cal-d.today { color: var(--teal); font-weight: 700; }
 .cal-d.selected { background: var(--teal); color: #fff; font-weight: 600; }
+.cal-d:disabled { color: #c3ccd5; cursor: default; }
+.cal-d:disabled:hover { background: none; color: #c3ccd5; }
 .field span { font-weight: 600; }
 .field input, .field textarea, .field select {
   border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;

@@ -3,6 +3,9 @@ import { createRelease, getReleaseOptions } from '../../../infrastructure/api/ca
 import { SearchRow } from '../../components/Feedback.jsx';
 import Select from '../../components/Select.jsx';
 import DateField from '../../components/DateField.jsx';
+import TimeField from '../../components/TimeField.jsx';
+
+const pad2 = (n) => String(n).padStart(2, '0');
 import { Ico, ICON } from '../../components/Icons.jsx';
 
 const dateOnly = (iso) => (iso ? new Date(`${iso}`.slice(0, 10)).toLocaleDateString() : '—');
@@ -127,6 +130,28 @@ function ReleaseModal({ onClose, onCreated }) {
     true,
   ];
 
+  // Deploy-window rules — checked on "Siguiente", where Date() is allowed:
+  // start ≥ today (and ≥ now+15m when it's today); end ≥ start+15m on the
+  // same day.
+  const next = () => {
+    const now = new Date();
+    const todayIso = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+    const mins = (t) => +t.slice(0, 2) * 60 + +t.slice(3, 5);
+    const nowPlus15 = now.getHours() * 60 + now.getMinutes() + 15;
+    if (step === 0) {
+      if (form.start_date < todayIso)
+        return setError('La fecha de inicio no puede ser anterior a hoy');
+      if (form.start_date === todayIso && mins(form.start_time) < nowPlus15)
+        return setError('La hora de inicio debe ser al menos 15 minutos posterior a la actual');
+      if (form.end_date < form.start_date)
+        return setError('La fecha de finalización no puede ser anterior al inicio');
+      if (form.end_date === form.start_date && mins(form.end_time) < mins(form.start_time) + 15)
+        return setError('La hora de finalización debe ser al menos 15 minutos posterior al inicio');
+    }
+    setError(null);
+    setStep(step + 1);
+  };
+
   const submit = async () => {
     setBusy(true);
     setError(null);
@@ -203,23 +228,31 @@ function ReleaseModal({ onClose, onCreated }) {
                 <div className="field-row">
                   <label className="field">
                     <span>Fecha de inicio *</span>
-                    <DateField value={form.start_date}
+                    <DateField value={form.start_date} min="today"
                       onChange={(v) => setForm((f) => ({ ...f, start_date: v }))} />
                   </label>
                   <label className="field field-time">
                     <span>Hora</span>
-                    <input type="time" value={form.start_time} onChange={set('start_time')} />
+                    <TimeField value={form.start_time} onDate={form.start_date}
+                      minNow={15} disabled={!form.start_date}
+                      onChange={(v) => setForm((f) => ({ ...f, start_time: v }))} />
                   </label>
                 </div>
                 <div className="field-row">
                   <label className="field">
                     <span>Fecha de finalización *</span>
                     <DateField value={form.end_date}
+                      min={form.start_date || 'today'}
                       onChange={(v) => setForm((f) => ({ ...f, end_date: v }))} />
                   </label>
                   <label className="field field-time">
                     <span>Hora</span>
-                    <input type="time" value={form.end_time} onChange={set('end_time')} />
+                    <TimeField value={form.end_time} onDate={form.end_date}
+                      minNow={15} disabled={!form.end_date}
+                      minTime={form.end_date === form.start_date
+                        ? `${pad2(+form.start_time.slice(0, 2) + Math.floor((+form.start_time.slice(3, 5) + 15) / 60))}:${pad2((+form.start_time.slice(3, 5) + 15) % 60)}`
+                        : '00:00'}
+                      onChange={(v) => setForm((f) => ({ ...f, end_time: v }))} />
                   </label>
                 </div>
                 <label className="field">
@@ -286,7 +319,7 @@ function ReleaseModal({ onClose, onCreated }) {
             : <button className="btn-text btn-cancel" onClick={onClose}>Cancelar</button>}
           {step < 2
             ? <button className="btn-text btn-next" disabled={!stepOk[step]}
-                onClick={() => setStep(step + 1)}>Siguiente</button>
+                onClick={next}>Siguiente</button>
             : <button className="btn-text btn-next" disabled={busy} onClick={submit}>
                 {busy ? 'Creando…' : 'Crear release'}
               </button>}

@@ -9,7 +9,7 @@ const WDAYS = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
 const pad = (n) => String(n).padStart(2, '0');
 const fmt = (v) => v ? `${v.slice(8, 10)}/${v.slice(5, 7)}/${v.slice(0, 4)}` : '';
 
-export default function DateField({ value, onChange,
+export default function DateField({ value, onChange, min,
   placeholder = 'dd/mm/aaaa', disabled }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -73,8 +73,9 @@ export default function DateField({ value, onChange,
             {Array.from({ length: days }, (_, i) => {
               const d = i + 1;
               const iso = `${view.y}-${pad(view.m + 1)}-${pad(d)}`;
+              const before = min && iso < (min === 'today' ? today : min);
               return (
-                <button key={d} type="button"
+                <button key={d} type="button" disabled={before}
                   className={`cal-d${iso === value ? ' selected' : ''}${iso === today ? ' today' : ''}`}
                   onMouseDown={(e) => { e.preventDefault(); pick(d); }}>{d}</button>
               );
