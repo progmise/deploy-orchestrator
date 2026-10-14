@@ -137,7 +137,7 @@ export default function ReleaseDetail({ number }) {
                     <button className="tool-btn env-toggle" title="Ver trails"
                       onClick={() => setOpenEnv(open ? null : e.name)}>
                       {open ? '⌃' : '⌄'}
-                    </button>{' '}
+                    </button>
                     <strong>{e.name}</strong></td>
                   <td className="muted">{e.name === 'pro' ? 'production' : 'preproduction'}</td>
                   <td className="muted">{e.order}</td>

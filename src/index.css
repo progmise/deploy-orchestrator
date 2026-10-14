@@ -365,7 +365,8 @@ tbody tr:hover { background: var(--panel); }
 .tool-btn:disabled { opacity: .35; cursor: not-allowed; }
 .tool-disabled { opacity: .3; color: var(--muted); display: inline-flex; }
 
-.env-toggle { vertical-align: -2px; font-size: 13px; }
+.env-toggle { vertical-align: -2px; font-size: 13px; width: 40px;
+  justify-content: center; margin-right: 6px; }
 .env-trails-row td { background: #fff; padding: 10px 14px 10px 34px; }
 .trails { width: 100%; border-collapse: collapse; font-size: 13px; }
 .trails th { text-align: left; color: var(--muted); font-weight: 600;
