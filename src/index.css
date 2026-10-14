@@ -353,7 +353,8 @@ tbody tr:hover { background: var(--panel); }
 .rls-step.active { color: var(--text); font-weight: 600; }
 
 .rls-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
-.rls-meta { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.rls-meta { display: grid; grid-template-columns: 200px auto; column-gap: 24px;
+  row-gap: 8px; font-size: 14px; }
 .rls-actions { display: flex; gap: 10px; align-items: center; }
 .rls-actions .btn svg { width: 14px; height: 14px; vertical-align: -2px; }
 

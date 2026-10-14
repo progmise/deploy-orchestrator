@@ -107,8 +107,6 @@ export default function ReleaseDetail({ number }) {
                     {busy === 'publish' ? 'Publicando…' : 'draft'}
                   </button>}
             </span>
-            <span className="muted">{release.description}</span>
-            <span className="muted">Fecha prevista: {dateOnly(release.planned_date)}</span>
           </div>
           <div className="rls-actions">
             <button className="btn btn-outline" onClick={reload}
