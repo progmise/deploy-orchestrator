@@ -320,6 +320,32 @@ tbody tr:hover { background: var(--panel); }
 .field-row { display: flex; gap: 12px; }
 .field-row .field { flex: 1; }
 .field-time { flex: 0 0 110px; }
+
+/* --- Gluon-style combo --- */
+.sel { position: relative; }
+.sel.disabled { opacity: .55; }
+.sel-btn {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: #fff; cursor: pointer; font: inherit; font-size: 13px; text-align: left;
+}
+.sel-btn:hover:not(:disabled) { border-color: var(--teal); }
+.sel-label { display: flex; align-items: center; gap: 8px; }
+.sel-label.placeholder { color: #98a4b0; }
+.sel-caret { color: var(--muted); font-size: 13px; }
+.sel-list {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 20;
+  margin: 0; padding: 4px 0; list-style: none; background: #fff;
+  border: 1px solid var(--line); border-radius: 8px; max-height: 220px;
+  overflow-y: auto; box-shadow: 0 8px 24px rgba(20,40,60,.14);
+}
+.sel-opt { padding: 7px 10px; cursor: pointer; display: flex;
+  align-items: center; gap: 8px; font-size: 13px; }
+.sel-opt:hover { background: var(--panel); }
+.sel-opt.selected { font-weight: 600; }
+.sel-tag { font-size: 11px; padding: 1px 8px; border-radius: 999px; }
+.tag-draft { background: #6b7684; color: #fff; }
+.tag-pub { background: #fff; color: var(--teal); border: 1px solid var(--teal); }
 .field span { font-weight: 600; }
 .field input, .field textarea, .field select {
   border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;

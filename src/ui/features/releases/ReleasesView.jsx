@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createRelease, getReleaseOptions } from '../../../infrastructure/api/catalogApi.js';
 import { SearchRow } from '../../components/Feedback.jsx';
+import Select from '../../components/Select.jsx';
 import { Ico, ICON } from '../../components/Icons.jsx';
 
 const dateOnly = (iso) => (iso ? new Date(`${iso}`.slice(0, 10)).toLocaleDateString() : '—');
@@ -176,30 +177,27 @@ function ReleaseModal({ onClose, onCreated }) {
               <div className="form">
                 <label className="field">
                   <span>Versión OAM del manifest *</span>
-                  <select value={form.version} onChange={set('version')}
-                    disabled={!options}>
-                    <option value="">{options ? 'Seleccionar…' : 'Cargando…'}</option>
-                    {(options?.versions || []).map((v) => (
-                      <option key={v.version} value={v.version}>
-                        {v.version}{v.draft ? ' (draft)' : ''}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={form.version} disabled={!options}
+                    placeholder={options ? 'Seleccionar…' : 'Cargando…'}
+                    onChange={(v) => setForm((f) => ({ ...f, version: v }))}
+                    options={(options?.versions || []).map((v) => ({
+                      value: v.version, label: v.version,
+                      tag: v.draft ? 'Borrador' : 'Publicado',
+                      tagKind: v.draft ? 'draft' : 'pub',
+                    }))} />
                   <small className="muted">
-                    Drafts del manifest primero; las publicadas debajo
+                    Borradores del manifest primero; los publicados debajo
                   </small>
                 </label>
                 <label className="field">
                   <span>Ruta de despliegue *</span>
-                  <select value={form.trail} onChange={set('trail')}
-                    disabled={!options}>
-                    <option value="">{options ? 'Seleccionar…' : 'Cargando…'}</option>
-                    {(options?.trails || []).map((t) => (
-                      <option key={t.name} value={t.name}>
-                        {t.name} ({t.environments.join(' → ')})
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={form.trail} disabled={!options}
+                    placeholder={options ? 'Seleccionar…' : 'Cargando…'}
+                    onChange={(v) => setForm((f) => ({ ...f, trail: v }))}
+                    options={(options?.trails || []).map((t) => ({
+                      value: t.name,
+                      label: `${t.name} (${t.environments.join(' → ')})`,
+                    }))} />
                 </label>
               </div>
             )}
