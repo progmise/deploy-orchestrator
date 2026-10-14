@@ -64,7 +64,14 @@ export default function App() {
         <a href="/">progmise</a><span className="sep">/</span>
         <a href="https://github.com/progmise/deploy-manifest" target="_blank" rel="noreferrer">deploy-manifest</a>
         <span className="sep">/</span>
-        <span>{viewLabel}</span>
+        {view === 'release-detail' ? (
+          <>
+            <a onClick={() => { setView('releases'); reloadReleases(); }}>Releases</a>
+            <span className="sep">/</span><span>Detalle</span>
+          </>
+        ) : (
+          <span>{viewLabel}</span>
+        )}
         <span className="muted" style={{ marginLeft: 'auto' }}>
           release <code>v{manifest.version}</code>
         </span>
@@ -88,8 +95,7 @@ export default function App() {
           )}
 
           {view === 'release-detail' && (
-            <ReleaseDetail number={releaseNo}
-              onBack={() => { setView('releases'); reloadReleases(); }} />
+            <ReleaseDetail number={releaseNo} />
           )}
 
           {view === 'componentes' && (

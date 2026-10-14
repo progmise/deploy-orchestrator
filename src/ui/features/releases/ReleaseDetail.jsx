@@ -6,22 +6,24 @@ import { Ico, ICON, GhIcon } from '../../components/Icons.jsx';
 const dateOnly = (iso) => (iso ? new Date(`${iso}`.slice(0, 10)).toLocaleDateString() : '—');
 
 // Stepper — Gluon's Nuevo→Certificación→Pre Producción→Producción→Cerrado,
-// mapped to our lifecycle: draft → Publicado → pre deployed → pro deployed
-// → all environments succeeded.
+// mapped to our lifecycle: created → draft published → non-pro deployed →
+// pro deployed → every environment succeeded.
 const envDone = (rel, env) =>
   rel.deployments?.some((d) => d.environment === env && d.status === 'success');
 
 function stageOf(rel) {
-  if (!rel.published) return 0;
   const envs = rel.environments?.length ? rel.environments : [];
   const nonPro = envs.filter((e) => e !== 'pro');
-  if (!envs.includes('pro')) return envs.every((e) => envDone(rel, e)) ? 4 : 2;
-  if (!nonPro.every((e) => envDone(rel, e))) return 1;
-  if (!envDone(rel, 'pro')) return 2;
-  return 4;
+  const proDone = envs.includes('pro') ? envDone(rel, 'pro') : true;
+  const done = 1 // Nuevo — the release exists
+    + (rel.published ? 1 : 0)
+    + (nonPro.length && nonPro.every((e) => envDone(rel, e)) ? 1 : 0)
+    + (nonPro.every((e) => envDone(rel, e)) && proDone ? 1 : 0)
+    + (envs.length && envs.every((e) => envDone(rel, e)) ? 1 : 0);
+  return done; // === STEPS.length when everything deployed → Cerrado shown as done
 }
 
-const STEPS = ['Nuevo', 'Publicado', 'Pre Producción', 'Producción', 'Cerrado'];
+const STEPS = ['Nuevo', 'Certificación', 'Pre Producción', 'Producción', 'Cerrado'];
 
 // Deployment state drives the action icons: play stays enabled until the
 // env deploy succeeds; the GitHub icon links to the run once it exists.
@@ -30,10 +32,35 @@ const deployState = (rel, env) =>
 
 const RUNNING = new Set(['dispatched', 'queued', 'in_progress', 'requested']);
 
-export default function ReleaseDetail({ number, onBack }) {
+// Trails — Gluon's per-environment task sub-table, synthesized from our own
+// lifecycle: publish approval (Certification) + the env's deploy dispatch.
+const trailsFor = (rel, env, order) => {
+  const trails = [];
+  if (rel.published) trails.push({
+    number: `TRL${rel.number}${order}1`,
+    description: 'Release publish approval',
+    type: 'generic_task',
+    status: 'CLOSED_COMPLETE',
+  });
+  const dep = rel.deployments?.find((d) => d.environment === env.name);
+  trails.push({
+    number: `TRL${rel.number}${order}2`,
+    description: `Deploy on Environment: ${env.name} with Type: ${env.name === 'pro' ? 'production' : 'preproduction'}`,
+    type: 'other_deployment',
+    status: !dep ? 'PENDING'
+      : dep.status === 'success' ? 'CLOSED_COMPLETE'
+      : RUNNING.has(dep.status) ? 'IN_PROGRESS'
+      : 'CLOSED_INCOMPLETE',
+    url: dep?.run_url,
+  });
+  return trails;
+};
+
+export default function ReleaseDetail({ number }) {
   const { release, error, reload } = useReleaseDetail(number);
   const [busy, setBusy] = useState(null);
   const [actionError, setActionError] = useState(null);
+  const [openEnv, setOpenEnv] = useState(null);
 
   const act = async (key, fn) => {
     setBusy(key);
@@ -68,6 +95,8 @@ export default function ReleaseDetail({ number, onBack }) {
         <div className="rls-head">
           <div className="rls-meta">
             <span>Release: <strong>{release.release_no}</strong></span>
+            <span>Estado: <strong>{STEPS[Math.min(stage, STEPS.length - 1)].toUpperCase()}</strong></span>
+            <span>Trail: <span className="muted">{envs.map((e) => e.name).join('-')}-trails</span></span>
             <span>Versión: <code>{release.version}</code>{' '}
               {release.published
                 ? <span className="pill ok">Publicado</span>
@@ -82,14 +111,10 @@ export default function ReleaseDetail({ number, onBack }) {
             <span className="muted">Fecha prevista: {dateOnly(release.planned_date)}</span>
           </div>
           <div className="rls-actions">
-            {release.gh_release_url &&
-              <a className="btn btn-outline" href={release.gh_release_url}
-                target="_blank" rel="noreferrer">GitHub ↗</a>}
             <button className="btn btn-outline" onClick={reload}
               title="Actualizar Release">
               <Ico d={ICON.refresh} /> Actualizar Release
             </button>
-            <button className="btn-text btn-cancel" onClick={onBack}>← Releases</button>
           </div>
         </div>
         {actionError && <div className="alert-error">{actionError}</div>}
@@ -107,9 +132,15 @@ export default function ReleaseDetail({ number, onBack }) {
               const dep = deployState(release, e.name);
               const deployed = dep?.status === 'success';
               const running = RUNNING.has(dep?.status);
-              return (
+              const open = openEnv === e.name;
+              return [
                 <tr key={e.name}>
-                  <td><strong>{e.name}</strong></td>
+                  <td>
+                    <button className="tool-btn env-toggle" title="Ver trails"
+                      onClick={() => setOpenEnv(open ? null : e.name)}>
+                      {open ? '⌃' : '⌄'}
+                    </button>{' '}
+                    <strong>{e.name}</strong></td>
                   <td className="muted">{e.name === 'pro' ? 'production' : 'preproduction'}</td>
                   <td className="muted">{e.order}</td>
                   <td className="muted">{dateOnly(release.planned_date)}</td>
@@ -129,8 +160,36 @@ export default function ReleaseDetail({ number, onBack }) {
                           title="Run del despliegue en el manifest">{GhIcon}</a>
                       : <span className="tool-disabled" title="Sin run todavía">{GhIcon}</span>}
                   </span></td>
-                </tr>
-              );
+                </tr>,
+                open && (
+                  <tr key={`${e.name}-trails`} className="env-trails-row">
+                    <td colSpan={6}>
+                      <table className="trails">
+                        <thead>
+                          <tr><th>Number</th><th>Short description</th><th>Type</th>
+                            <th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                          {trailsFor(release, e, e.order).map((t) => (
+                            <tr key={t.number}>
+                              <td><code>{t.number}</code></td>
+                              <td>{t.description}</td>
+                              <td className="muted">{t.type}</td>
+                              <td><span className={`pill ${t.status === 'CLOSED_COMPLETE' ? 'ok'
+                                : t.status === 'IN_PROGRESS' ? 'running' : 'outline'}`}>
+                                {t.status}</span></td>
+                              <td>{t.url
+                                ? <a href={t.url} target="_blank" rel="noreferrer"
+                                    title="Run en GitHub Actions"><Ico d={ICON.doc} /></a>
+                                : '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                ),
+              ];
             })}
           </tbody>
         </table>

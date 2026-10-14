@@ -40,7 +40,7 @@ code { background: #eef1f6; padding: 2px 6px; border-radius: 4px; font-size: 13p
   padding: 10px 20px; background: #fff; border-bottom: 1px solid var(--line);
   font-size: 13px; color: var(--muted);
 }
-.crumbs a { color: var(--teal); }
+.crumbs a { color: var(--teal); cursor: pointer; }
 .crumbs .sep { color: #b9c4cf; }
 
 /* --- Layout --- */
@@ -363,6 +363,17 @@ tbody tr:hover { background: var(--panel); }
 .tool-btn:hover:not(:disabled) { color: var(--teal); background: #eef6f6; }
 .tool-btn:disabled { opacity: .35; cursor: not-allowed; }
 .tool-disabled { opacity: .3; color: var(--muted); display: inline-flex; }
+
+.env-toggle { vertical-align: -2px; font-size: 13px; }
+.env-trails-row td { background: #fff; padding: 10px 14px 10px 34px; }
+.trails { width: 100%; border-collapse: collapse; font-size: 13px; }
+.trails th { text-align: left; color: var(--muted); font-weight: 600;
+  padding: 4px 10px 6px; border-bottom: 1px solid var(--line); font-size: 11px;
+  text-transform: uppercase; letter-spacing: .4px; }
+.trails td { padding: 6px 10px; border-bottom: 1px solid var(--line); }
+.trails tbody tr:last-child td { border-bottom: none; }
+.trails svg { width: 16px; height: 16px; vertical-align: -3px; color: var(--muted); }
+
 .pill-btn { cursor: pointer; }
 .pill-btn:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
 .pill-btn:disabled { opacity: .5; cursor: wait; }
