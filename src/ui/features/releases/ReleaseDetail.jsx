@@ -122,8 +122,8 @@ export default function ReleaseDetail({ number }) {
         <p className="tbl-legend">Ambientes del release</p>
         <table>
           <thead>
-            <tr><th>Nombre</th><th>Tipo</th><th>Orden</th><th>Fecha prevista</th>
-              <th>Estado</th><th>Action</th></tr>
+            <tr><th className="env-exp-col"></th><th>Nombre</th><th>Tipo</th>
+              <th>Orden</th><th>Fecha prevista</th><th>Estado</th><th>Action</th></tr>
           </thead>
           <tbody>
             {envs.map((e) => {
@@ -133,12 +133,12 @@ export default function ReleaseDetail({ number }) {
               const open = openEnv === e.name;
               return [
                 <tr key={e.name}>
-                  <td>
+                  <td className="env-exp">
                     <button className="tool-btn env-toggle" title="Ver trails"
                       onClick={() => setOpenEnv(open ? null : e.name)}>
                       {open ? '⌃' : '⌄'}
-                    </button>
-                    <strong>{e.name}</strong></td>
+                    </button></td>
+                  <td><strong>{e.name}</strong></td>
                   <td className="muted">{e.name === 'pro' ? 'production' : 'preproduction'}</td>
                   <td className="muted">{e.order}</td>
                   <td className="muted">{dateOnly(release.planned_date)}</td>
@@ -161,7 +161,7 @@ export default function ReleaseDetail({ number }) {
                 </tr>,
                 open && (
                   <tr key={`${e.name}-trails`} className="env-trails-row">
-                    <td colSpan={6}>
+                    <td colSpan={7}>
                       <table className="trails">
                         <thead>
                           <tr><th>Number</th><th>Short description</th><th>Type</th>

@@ -365,9 +365,10 @@ tbody tr:hover { background: var(--panel); }
 .tool-btn:disabled { opacity: .35; cursor: not-allowed; }
 .tool-disabled { opacity: .3; color: var(--muted); display: inline-flex; }
 
-.env-toggle { vertical-align: -2px; font-size: 13px; width: 40px;
-  justify-content: center; margin-right: 6px; }
-.env-trails-row td { background: #fff; padding: 10px 14px 10px 34px; }
+.env-exp-col, .env-exp { width: 44px; }
+.env-exp { padding-right: 0; }
+.env-toggle { font-size: 13px; justify-content: center; width: 28px; }
+.env-trails-row td { background: #fff; padding: 10px 14px 10px 8px; }
 .trails { width: 100%; border-collapse: collapse; font-size: 13px; }
 .trails th { text-align: left; color: var(--muted); font-weight: 600;
   padding: 4px 10px 6px; border-bottom: 1px solid var(--line); font-size: 11px;
