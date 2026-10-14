@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createRelease, getReleaseOptions } from '../../../infrastructure/api/catalogApi.js';
 import { SearchRow } from '../../components/Feedback.jsx';
 import Select from '../../components/Select.jsx';
+import DateField from '../../components/DateField.jsx';
 import { Ico, ICON } from '../../components/Icons.jsx';
 
 const dateOnly = (iso) => (iso ? new Date(`${iso}`.slice(0, 10)).toLocaleDateString() : '—');
@@ -202,7 +203,8 @@ function ReleaseModal({ onClose, onCreated }) {
                 <div className="field-row">
                   <label className="field">
                     <span>Fecha de inicio *</span>
-                    <input type="date" value={form.start_date} onChange={set('start_date')} />
+                    <DateField value={form.start_date}
+                      onChange={(v) => setForm((f) => ({ ...f, start_date: v }))} />
                   </label>
                   <label className="field field-time">
                     <span>Hora</span>
@@ -212,7 +214,8 @@ function ReleaseModal({ onClose, onCreated }) {
                 <div className="field-row">
                   <label className="field">
                     <span>Fecha de finalización *</span>
-                    <input type="date" value={form.end_date} onChange={set('end_date')} />
+                    <DateField value={form.end_date}
+                      onChange={(v) => setForm((f) => ({ ...f, end_date: v }))} />
                   </label>
                   <label className="field field-time">
                     <span>Hora</span>

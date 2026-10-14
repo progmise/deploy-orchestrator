@@ -356,6 +356,28 @@ tbody tr:hover { background: var(--panel); }
   font-size: 12px; color: var(--muted); background: #fff;
   border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px;
 }
+
+/* --- Calendar popover --- */
+.cal-ico svg { width: 15px; height: 15px; vertical-align: -2px; }
+.cal-pop {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 20;
+  background: #fff; border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px; width: 250px; box-shadow: 0 8px 24px rgba(20,40,60,.14);
+}
+.cal-head { display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px; font-size: 13px; font-weight: 600;
+  text-transform: capitalize; }
+.cal-head button { background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 16px; padding: 0 8px; border-radius: 6px; }
+.cal-head button:hover { background: var(--panel); color: var(--teal); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-wd { font-size: 10px; color: var(--muted); text-align: center;
+  padding: 4px 0; font-weight: 600; }
+.cal-d { background: none; border: none; cursor: pointer; font: inherit;
+  font-size: 12px; padding: 5px 0; border-radius: 6px; text-align: center; }
+.cal-d:hover { background: var(--panel); color: var(--teal); }
+.cal-d.today { color: var(--teal); font-weight: 700; }
+.cal-d.selected { background: var(--teal); color: #fff; font-weight: 600; }
 .field span { font-weight: 600; }
 .field input, .field textarea, .field select {
   border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;
