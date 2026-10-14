@@ -346,6 +346,16 @@ tbody tr:hover { background: var(--panel); }
 .sel-tag { font-size: 11px; padding: 1px 8px; border-radius: 999px; }
 .tag-draft { background: #6b7684; color: #fff; }
 .tag-pub { background: #fff; color: var(--teal); border: 1px solid var(--teal); }
+
+.fixed-field {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--panel); min-height: 36px;
+}
+.fixed-field .chip {
+  font-size: 12px; color: var(--muted); background: #fff;
+  border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px;
+}
 .field span { font-weight: 600; }
 .field input, .field textarea, .field select {
   border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;

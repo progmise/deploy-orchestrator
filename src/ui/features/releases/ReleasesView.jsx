@@ -121,8 +121,8 @@ function ReleaseModal({ onClose, onCreated }) {
   }, []);
 
   const stepOk = [
-    form.version && form.trail,
-    form.description.trim() && form.start_date && form.end_date,
+    form.version && form.trail && form.start_date && form.end_date,
+    form.description.trim(),
     true,
   ];
 
@@ -199,16 +199,6 @@ function ReleaseModal({ onClose, onCreated }) {
                       label: `${t.name} (${t.environments.join(' → ')})`,
                     }))} />
                 </label>
-              </div>
-            )}
-
-            {step === 1 && (
-              <div className="form">
-                <label className="field">
-                  <span>Breve descripción *</span>
-                  <input value={form.description} placeholder="Actualización de perfilado"
-                    onChange={set('description')} />
-                </label>
                 <div className="field-row">
                   <label className="field">
                     <span>Fecha de inicio *</span>
@@ -229,11 +219,34 @@ function ReleaseModal({ onClose, onCreated }) {
                     <input type="time" value={form.end_time} onChange={set('end_time')} />
                   </label>
                 </div>
+                <label className="field">
+                  <span>Días disponibles para el despliegue</span>
+                  <div className="fixed-field">
+                    {['DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB']
+                      .map((d) => <span key={d} className="chip">{d}</span>)}
+                  </div>
+                </label>
+                <label className="field">
+                  <span>Ventana de tiempo</span>
+                  <div className="fixed-field">
+                    <span className="chip">00:00 – 23:59</span>
+                  </div>
+                </label>
                 <small className="muted">
                   La ventana de despliegue acota cuándo puede desplegarse cada
                   ambiente: antes del inicio o después de la finalización,
                   ningún deploy avanza.
                 </small>
+              </div>
+            )}
+
+            {step === 1 && (
+              <div className="form">
+                <label className="field">
+                  <span>Breve descripción *</span>
+                  <input value={form.description} placeholder="Actualización de perfilado"
+                    onChange={set('description')} />
+                </label>
               </div>
             )}
 
