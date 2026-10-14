@@ -39,7 +39,9 @@ export default function Select({ value, options = [], onChange,
           {options.map((o) => (
             <li key={o.value}
               className={`sel-opt${o.value === value ? ' selected' : ''}`}
-              onClick={() => { onChange(o.value); setOpen(false); }}>
+              // mousedown commits before any outside-close listener can
+              // unmount the list and swallow the click
+              onMouseDown={(e) => { e.preventDefault(); onChange(o.value); setOpen(false); }}>
               {o.label}{o.tag && <Tag t={o} />}
             </li>
           ))}

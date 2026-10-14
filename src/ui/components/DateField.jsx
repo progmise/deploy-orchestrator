@@ -76,7 +76,7 @@ export default function DateField({ value, onChange,
               return (
                 <button key={d} type="button"
                   className={`cal-d${iso === value ? ' selected' : ''}${iso === today ? ' today' : ''}`}
-                  onClick={() => pick(d)}>{d}</button>
+                  onMouseDown={(e) => { e.preventDefault(); pick(d); }}>{d}</button>
               );
             })}
           </div>
