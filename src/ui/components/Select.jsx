@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 // Gluon-style combo: native <select> can't render tags inside options, so
 // this renders a button + popover list. Options may carry a `tag` +
 // `tagKind` ('draft' | 'pub') shown as a pill next to the label.
+const Tag = ({ t }) =>
+  <span className={`sel-tag tag-${t.tagKind || 'plain'}`}>{t.tag}</span>;
+
 export default function Select({ value, options = [], onChange,
   placeholder = 'Seleccionar…', disabled }) {
   const [open, setOpen] = useState(false);
@@ -20,9 +23,6 @@ export default function Select({ value, options = [], onChange,
       document.removeEventListener('keydown', esc);
     };
   }, [open]);
-
-  const Tag = ({ t }) =>
-    <span className={`sel-tag tag-${t.tagKind || 'plain'}`}>{t.tag}</span>;
 
   return (
     <div className={`sel${disabled ? ' disabled' : ''}`} ref={ref}>
