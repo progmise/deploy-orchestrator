@@ -13,11 +13,16 @@ export default function DateField({ value, onChange,
   placeholder = 'dd/mm/aaaa', disabled }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
-  const now = new Date();
-  const [view, setView] = useState({
-    y: value ? +value.slice(0, 4) : now.getFullYear(),
-    m: value ? +value.slice(5, 7) - 1 : now.getMonth(),
-  });
+  const [today, setToday] = useState('');
+  const [view, setView] = useState(value
+    ? { y: +value.slice(0, 4), m: +value.slice(5, 7) - 1 }
+    : null);
+
+  useEffect(() => {
+    const n = new Date();
+    setToday(`${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`);
+    setView((v) => v ?? { y: n.getFullYear(), m: n.getMonth() });
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -31,9 +36,8 @@ export default function DateField({ value, onChange,
     };
   }, [open]);
 
-  const first = new Date(view.y, view.m, 1).getDay();
-  const days = new Date(view.y, view.m + 1, 0).getDate();
-  const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const first = view ? new Date(view.y, view.m, 1).getDay() : 0;
+  const days = view ? new Date(view.y, view.m + 1, 0).getDate() : 0;
   const move = (d) => setView(({ y, m }) => {
     const t = new Date(y, m + d, 1);
     return { y: t.getFullYear(), m: t.getMonth() };
@@ -52,7 +56,7 @@ export default function DateField({ value, onChange,
         </span>
         <span className="sel-caret cal-ico"><Ico d={ICON.calendar} /></span>
       </button>
-      {open && (
+      {open && view && (
         <div className="cal-pop">
           <div className="cal-head">
             <button type="button" onClick={() => move(-1)}>‹</button>
