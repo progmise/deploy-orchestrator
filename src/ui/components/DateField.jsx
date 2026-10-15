@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Ico, ICON } from './Icons.jsx';
+import { useDropUp } from './useDropUp.js';
 
 // Calendar popover — same button+popover pattern as Select. `value` is
 // 'YYYY-MM-DD'; displays dd/mm/aaaa like the reference's pickers.
@@ -15,6 +16,7 @@ export default function DateField({ value, onChange, min,
   const ref = useRef(null);
   const [today, setToday] = useState('');
   const [view, setView] = useState(null);
+  const up = useDropUp(ref, open);
 
   // Date reads live in the event handler — render stays pure.
   const toggle = () => {
@@ -61,7 +63,7 @@ export default function DateField({ value, onChange, min,
         <span className="sel-caret cal-ico"><Ico d={ICON.calendar} /></span>
       </button>
       {open && view && (
-        <div className="cal-pop">
+        <div className={`cal-pop${up ? ' up' : ''}`}>
           <div className="cal-head">
             <button type="button" onClick={() => move(-1)}>‹</button>
             <span>{MONTHS[view.m]} {view.y}</span>

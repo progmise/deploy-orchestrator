@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useDropUp } from './useDropUp.js';
 
 // Time combo — same button+popover pattern as Select, listing times in
 // 5-minute steps. `minTime` is a static lower bound ('HH:MM'); `onDate` +
@@ -15,6 +16,7 @@ export default function TimeField({ value, onChange, minTime = '00:00',
   const [open, setOpen] = useState(false);
   const [nowBound, setNowBound] = useState('00:00');
   const ref = useRef(null);
+  const up = useDropUp(ref, open);
 
   useEffect(() => {
     if (!open) return;
@@ -51,7 +53,7 @@ export default function TimeField({ value, onChange, minTime = '00:00',
         <span className="sel-caret">{open ? '⌃' : '⌄'}</span>
       </button>
       {open && (
-        <ul className="sel-list">
+        <ul className={`sel-list${up ? ' up' : ''}`}>
           {options.map((t) => (
             <li key={t}
               className={`sel-opt${t === value ? ' selected' : ''}`}

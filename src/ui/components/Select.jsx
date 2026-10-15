@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useDropUp } from './useDropUp.js';
 
 // Gluon-style combo: native <select> can't render tags inside options, so
 // this renders a button + popover list. Options may carry a `tag` +
@@ -10,6 +11,7 @@ export default function Select({ value, options = [], onChange,
   placeholder = 'Seleccionar…', disabled }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const up = useDropUp(ref, open);
   const selected = options.find((o) => o.value === value);
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function Select({ value, options = [], onChange,
         <span className="sel-caret">{open ? '⌃' : '⌄'}</span>
       </button>
       {open && (
-        <ul className="sel-list">
+        <ul className={`sel-list${up ? ' up' : ''}`}>
           {options.map((o) => (
             <li key={o.value}
               className={`sel-opt${o.value === value ? ' selected' : ''}`}

@@ -345,6 +345,7 @@ tbody tr:hover { background: var(--panel); }
   border: 1px solid var(--line); border-radius: 8px; max-height: 220px;
   overflow-y: auto; box-shadow: 0 8px 24px rgba(20,40,60,.14);
 }
+.sel-list.up { top: auto; bottom: calc(100% + 4px); }
 .sel-opt { padding: 7px 10px; cursor: pointer; display: flex;
   align-items: center; gap: 8px; font-size: 13px; }
 .sel-opt:hover { background: var(--panel); }
@@ -370,6 +371,7 @@ tbody tr:hover { background: var(--panel); }
   background: #fff; border: 1px solid var(--line); border-radius: 10px;
   padding: 12px; width: 250px; box-shadow: 0 8px 24px rgba(20,40,60,.14);
 }
+.cal-pop.up { top: auto; bottom: calc(100% + 4px); }
 .cal-head { display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 8px; font-size: 13px; font-weight: 600;
   text-transform: capitalize; }
