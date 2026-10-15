@@ -96,7 +96,8 @@ export default function ReleasesView({ releases, me, onChanged, onOpen }) {
 
 const WIZ_STEPS = [
   'Seleccionar release',
-  'Información de la release',
+  'Información de la release.1',
+  'Información de la release.2',
   'Resumen de la confirmación',
 ];
 
@@ -108,6 +109,12 @@ const WIZ_STEPS = [
 const REASONS = ['New Application', 'New Version/Evolutive', 'Incident', 'Problem'];
 const PRIORITIES = ['1 - Critical', '2 - High', '3 - Moderate', '4 - Low', '5 - Planning'];
 const RISKS = ['Extreme', 'High', 'Medium', 'Low', 'Minimal'];
+const IMPACTS = ['1 - High', '2 - Medium', '3 - Low'];
+const RECOVERY_PLANS = [
+  'N/A - First version of the product/service, there is no previous version to go back to, if it has an impact on the environment we will correct it and generate a new version',
+  'N/A - Service unavailable to the user, in case of failure it will have no impact on the environment',
+  'Return to previous version',
+];
 
 function ReleaseModal({ me, releases, onClose, onCreated }) {
   const [step, setStep] = useState(0);
@@ -117,6 +124,8 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
   const [form, setForm] = useState({
     version: '', description: '', details: '', trail: '',
     reason: '', product_owner: '', priority: '', risk: '',
+    impact: '', justification: '', deploy_plan: '', risk_analysis: '',
+    test_plan: '', recovery_plan: '',
     start_date: '', start_time: '00:00', end_date: '', end_time: '23:59',
   });
   const [busy, setBusy] = useState(false);
@@ -152,6 +161,12 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
       details: r.details || f.details, reason: r.reason || f.reason,
       product_owner: r.product_owner || f.product_owner,
       priority: r.priority || f.priority, risk: r.risk || f.risk,
+      impact: r.impact || f.impact,
+      justification: r.justification || f.justification,
+      deploy_plan: r.deploy_plan || f.deploy_plan,
+      risk_analysis: r.risk_analysis || f.risk_analysis,
+      test_plan: r.test_plan || f.test_plan,
+      recovery_plan: r.recovery_plan || f.recovery_plan,
     }));
   };
 
@@ -159,6 +174,8 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
     form.version && form.trail && form.start_date && form.end_date,
     form.description.trim() && form.details.trim() && form.reason
       && form.product_owner && form.priority && form.risk,
+    form.impact && form.justification.trim() && form.deploy_plan.trim()
+      && form.risk_analysis.trim() && form.test_plan.trim() && form.recovery_plan,
     true,
   ];
 
@@ -198,6 +215,12 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
         requested_by: requester,
         priority: form.priority,
         risk: form.risk,
+        impact: form.impact,
+        justification: form.justification,
+        deploy_plan: form.deploy_plan,
+        risk_analysis: form.risk_analysis,
+        test_plan: form.test_plan,
+        recovery_plan: form.recovery_plan,
         planned_date: form.start_date,
         deploy_start: `${form.start_date}T${form.start_time}:00`,
         deploy_end: `${form.end_date}T${form.end_time}:59`,
@@ -370,6 +393,44 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
             )}
 
             {step === 2 && (
+              <div className="form">
+                <label className="field">
+                  <span>Impacto *</span>
+                  <Select value={form.impact} placeholder="Impacto"
+                    onChange={(v) => setForm((f) => ({ ...f, impact: v }))}
+                    options={IMPACTS.map((i) => ({ value: i, label: i }))} />
+                </label>
+                <label className="field">
+                  <span>Justificación *</span>
+                  <textarea rows="3" value={form.justification}
+                    placeholder="Justificación" onChange={set('justification')} />
+                </label>
+                <label className="field">
+                  <span>Plan de implantación *</span>
+                  <textarea rows="3" value={form.deploy_plan}
+                    placeholder="Plan de implantación" onChange={set('deploy_plan')} />
+                </label>
+                <label className="field">
+                  <span>Análisis de riesgos e impactos *</span>
+                  <textarea rows="3" value={form.risk_analysis}
+                    placeholder="Análisis de riesgos e impactos"
+                    onChange={set('risk_analysis')} />
+                </label>
+                <label className="field">
+                  <span>Plan de pruebas *</span>
+                  <textarea rows="3" value={form.test_plan}
+                    placeholder="Plan de pruebas" onChange={set('test_plan')} />
+                </label>
+                <label className="field">
+                  <span>Plan de recuperación *</span>
+                  <Select value={form.recovery_plan} placeholder="Plan de recuperación"
+                    onChange={(v) => setForm((f) => ({ ...f, recovery_plan: v }))}
+                    options={RECOVERY_PLANS.map((r) => ({ value: r, label: r }))} />
+                </label>
+              </div>
+            )}
+
+            {step === 3 && (
               <div className="summary">
                 <table className="summary-table">
                   <tbody>
@@ -384,8 +445,14 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
                     <tr><td>Solicitado por:</td><td>{requester}</td></tr>
                     <tr><td>Prioridad:</td><td>{form.priority}</td></tr>
                     <tr><td>Riesgo:</td><td>{form.risk}</td></tr>
+                    <tr><td>Impacto:</td><td>{form.impact}</td></tr>
                     <tr><td>Breve descripción:</td><td>{form.description}</td></tr>
                     <tr><td>Descripción:</td><td>{form.details}</td></tr>
+                    <tr><td>Justificación:</td><td>{form.justification}</td></tr>
+                    <tr><td>Plan de implantación:</td><td>{form.deploy_plan}</td></tr>
+                    <tr><td>Análisis de riesgos e impactos:</td><td>{form.risk_analysis}</td></tr>
+                    <tr><td>Plan de pruebas:</td><td>{form.test_plan}</td></tr>
+                    <tr><td>Plan de recuperación:</td><td>{form.recovery_plan}</td></tr>
                     <tr><td>Fecha de inicio:</td>
                       <td>{form.start_date} {form.start_time}</td></tr>
                     <tr><td>Fecha de finalización:</td>
@@ -406,7 +473,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
           {step > 0
             ? <button className="btn-text btn-cancel" onClick={() => setStep(step - 1)}>Atrás</button>
             : <button className="btn-text btn-cancel" onClick={onClose}>Cancelar</button>}
-          {step < 2
+          {step < 3
             ? <button className="btn-text btn-next" disabled={!stepOk[step]}
                 onClick={next}>Siguiente</button>
             : <button className="btn-text btn-next" disabled={busy} onClick={submit}>
