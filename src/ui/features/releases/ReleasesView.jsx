@@ -146,12 +146,13 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
           setForm((f) => ({ ...f, trail: f.trail || o.trails[0].name }));
       })
       .catch((e) => setError(e.message));
-    // Product owners are members with the technical-lead role — the ones
-    // allowed to approve PRs.
+    // Eligible product owners: technical-lead (PR approvers) and
+    // product-owner members.
     getMembers()
       .then((ms) => {
         setMembers(ms);
-        setLeads(ms.filter((m) => (m.roles || []).includes('technical-lead')));
+        setLeads(ms.filter((m) => (m.roles || [])
+          .some((r) => r === 'technical-lead' || r === 'product-owner')));
       })
       .catch(() => {});
   }, []);

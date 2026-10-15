@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { createMember } from '../../../infrastructure/api/catalogApi.js';
 import { SearchRow } from '../../components/Feedback.jsx';
 
-const ROLE_LABEL = { developer: 'developer', 'technical-lead': 'technical-lead' };
+const ROLE_LABEL = { developer: 'developer', 'technical-lead': 'technical-lead', 'product-owner': 'product-owner' };
+const MEMBER_ROLES = ['developer', 'technical-lead', 'product-owner'];
 const dateOnly = (iso) => (iso ? new Date(iso).toLocaleDateString() : '—');
 const initials = (name) =>
   (name || '?').split(/\s+/).filter(Boolean).slice(0, 2)
@@ -68,7 +69,6 @@ export default function MembersView({ members, onChanged }) {
                   <span className="avatar">{initials(m.full_name)}</span>
                   {m.full_name}
                 </span>
-                <span className="muted" style={{ fontSize: 11 }}> @{m.github_username}</span>
               </td>
               <td><span className="muted">{m.email}</span></td>
               <td><span className="chips">
@@ -144,7 +144,7 @@ function MemberModal({ onClose, onCreated }) {
           <span className="field">
             <span>Roles *</span>
             <span className="chips">
-              {['developer', 'technical-lead'].map((r) => (
+              {MEMBER_ROLES.map((r) => (
                 <button key={r} type="button"
                   className={`chip role-toggle${form.roles.includes(r) ? ` role-${r} on` : ''}`}
                   onClick={() => toggleRole(r)}>
@@ -153,7 +153,7 @@ function MemberModal({ onClose, onCreated }) {
               ))}
             </span>
             <small className="muted">
-              developer: acceso a los repos · technical-lead: aprueba PRs
+              developer: acceso a los repos · technical-lead: aprueba PRs · product-owner: dueño de releases
             </small>
           </span>
         </div>

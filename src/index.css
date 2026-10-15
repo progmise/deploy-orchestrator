@@ -306,6 +306,7 @@ tbody tr:hover { background: var(--panel); }
 }
 .chip.role-developer { background: #fff; border-color: #9fb356; color: #5a7021; }
 .chip.role-technical-lead { background: #fff; border-color: #d98080; color: #b42318; }
+.chip.role-product-owner { background: #fff; border-color: #7a9fd4; color: #2b5ea7; }
 .role-toggle { cursor: pointer; opacity: .45; }
 .role-toggle.on { opacity: 1; font-weight: 600; }
 
