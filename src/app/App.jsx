@@ -26,7 +26,7 @@ const NAV = [
 
 export default function App() {
   const me = useSession();
-  const { manifest, runs, catalog, templates, error, reloadCatalog } = useDashboardData(me);
+  const { manifest, runs, deployments, catalog, templates, error, reloadCatalog } = useDashboardData(me);
   const [wizardTemplate, setWizardTemplate] = useState(null);
   const [view, setView] = useState('componentes');
   const [releaseNo, setReleaseNo] = useState(null);
@@ -134,7 +134,8 @@ export default function App() {
             <div className="card">
               <h2>Despliegues orquestados</h2>
               <SearchRow q={q} setQ={setQ} placeholder="Buscar run…" />
-              <OrchRuns runs={filter(runs, lower, ['display_title'])} />
+              <OrchRuns runs={filter(runs, lower, ['display_title'])}
+                deployments={deployments} />
             </div>
           )}
 

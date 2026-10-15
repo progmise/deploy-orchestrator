@@ -54,3 +54,8 @@ export function publishRelease(number) {
 export function deployRelease(number, environment) {
   return apiSend(`/api/releases/${number}/deploy`, 'POST', { environment });
 }
+
+// Per-environment deployment records — joined to GitHub runs by run_id.
+export function getDeployments() {
+  return apiGet('/api/deployments');
+}
