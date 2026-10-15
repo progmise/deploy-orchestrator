@@ -110,6 +110,7 @@ const REASONS = ['New Application', 'New Version/Evolutive', 'Incident', 'Proble
 const PRIORITIES = ['1 - Critical', '2 - High', '3 - Moderate', '4 - Low', '5 - Planning'];
 const RISKS = ['Extreme', 'High', 'Medium', 'Low', 'Minimal'];
 const IMPACTS = ['1 - High', '2 - Medium', '3 - Low'];
+const PLATFORMS = ['Vercel', 'Render'];
 const RECOVERY_PLANS = [
   'N/A - First version of the product/service, there is no previous version to go back to, if it has an impact on the environment we will correct it and generate a new version',
   'N/A - Service unavailable to the user, in case of failure it will have no impact on the environment',
@@ -124,7 +125,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
   const [form, setForm] = useState({
     version: '', description: '', details: '', trail: '',
     reason: '', product_owner: '', priority: '', risk: '',
-    impact: '', justification: '', deploy_plan: '', risk_analysis: '',
+    impact: '', platform: '', justification: '', deploy_plan: '', risk_analysis: '',
     test_plan: '', recovery_plan: '',
     start_date: '', start_time: '00:00', end_date: '', end_time: '23:59',
   });
@@ -161,7 +162,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
       details: r.details || f.details, reason: r.reason || f.reason,
       product_owner: r.product_owner || f.product_owner,
       priority: r.priority || f.priority, risk: r.risk || f.risk,
-      impact: r.impact || f.impact,
+      impact: r.impact || f.impact, platform: r.platform || f.platform,
       justification: r.justification || f.justification,
       deploy_plan: r.deploy_plan || f.deploy_plan,
       risk_analysis: r.risk_analysis || f.risk_analysis,
@@ -174,7 +175,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
     form.version && form.trail && form.start_date && form.end_date,
     form.description.trim() && form.details.trim() && form.reason
       && form.product_owner && form.priority && form.risk,
-    form.impact && form.justification.trim() && form.deploy_plan.trim()
+    form.impact && form.platform && form.justification.trim() && form.deploy_plan.trim()
       && form.risk_analysis.trim() && form.test_plan.trim() && form.recovery_plan,
     true,
   ];
@@ -216,6 +217,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
         priority: form.priority,
         risk: form.risk,
         impact: form.impact,
+        platform: form.platform,
         justification: form.justification,
         deploy_plan: form.deploy_plan,
         risk_analysis: form.risk_analysis,
@@ -401,6 +403,12 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
                     options={IMPACTS.map((i) => ({ value: i, label: i }))} />
                 </label>
                 <label className="field">
+                  <span>Plataforma *</span>
+                  <Select value={form.platform} placeholder="Plataforma"
+                    onChange={(v) => setForm((f) => ({ ...f, platform: v }))}
+                    options={PLATFORMS.map((p) => ({ value: p, label: p }))} />
+                </label>
+                <label className="field">
                   <span>Justificación *</span>
                   <textarea rows="3" value={form.justification}
                     placeholder="Justificación" onChange={set('justification')} />
@@ -446,6 +454,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
                     <tr><td>Prioridad:</td><td>{form.priority}</td></tr>
                     <tr><td>Riesgo:</td><td>{form.risk}</td></tr>
                     <tr><td>Impacto:</td><td>{form.impact}</td></tr>
+                    <tr><td>Plataforma:</td><td>{form.platform}</td></tr>
                     <tr><td>Breve descripción:</td><td>{form.description}</td></tr>
                     <tr><td>Descripción:</td><td>{form.details}</td></tr>
                     <tr><td>Justificación:</td><td>{form.justification}</td></tr>
