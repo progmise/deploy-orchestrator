@@ -9,6 +9,12 @@ export function createTemplate(body) {
   return apiSend('/api/templates', 'POST', body);
 }
 
+// Credential key names the template wizard offers as provisioning toggles
+// (names only — values never leave the store).
+export function getPlatformKeys() {
+  return apiGet('/api/platform/keys');
+}
+
 export function getComponents() {
   return apiGet('/api/components');
 }
