@@ -90,7 +90,7 @@ export default function App() {
         <div className="content">
 
           {view === 'releases' && (
-            <ReleasesView releases={releases} onChanged={reloadReleases}
+            <ReleasesView releases={releases} me={me} onChanged={reloadReleases}
               onOpen={(n) => { setReleaseNo(n); setView('release-detail'); }} />
           )}
 

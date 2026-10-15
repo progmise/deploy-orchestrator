@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { createRelease, getReleaseOptions } from '../../../infrastructure/api/catalogApi.js';
+import { createRelease, getReleaseOptions, getMembers } from '../../../infrastructure/api/catalogApi.js';
 import { SearchRow } from '../../components/Feedback.jsx';
 import Select from '../../components/Select.jsx';
 import DateField from '../../components/DateField.jsx';
@@ -21,7 +21,7 @@ const COLUMNS = [
 // Lista de releases — Gluon "Releases": RLSE<number> wraps the deploy-manifest
 // release v<version>; Estado reflects the manifest release (draft/Publicado),
 // the doc icon opens the detail/status view.
-export default function ReleasesView({ releases, onChanged, onOpen }) {
+export default function ReleasesView({ releases, me, onChanged, onOpen }) {
   const [q, setQ] = useState('');
   const [date, setDate] = useState('');
   const [sort, setSort] = useState({ key: 'release_no', dir: -1 });
@@ -88,7 +88,8 @@ export default function ReleasesView({ releases, onChanged, onOpen }) {
         </tbody>
       </table>
       {releases && !rows.length && <p className="muted">Sin releases para esa búsqueda.</p>}
-      {showForm && <ReleaseModal onClose={() => setShowForm(false)} onCreated={onChanged} />}
+      {showForm && <ReleaseModal me={me} releases={releases}
+        onClose={() => setShowForm(false)} onCreated={onChanged} />}
     </div>
   );
 }
@@ -104,15 +105,23 @@ const WIZ_STEPS = [
 // Releases (drafts first, published below); the trail from the manifest's
 // environments; the deploy window (start/end) gates env deploys
 // server-side regardless of release state.
-function ReleaseModal({ onClose, onCreated }) {
+const REASONS = ['New Application', 'New Version/Evolutive', 'Incident', 'Problem'];
+const PRIORITIES = ['1 - Critical', '2 - High', '3 - Moderate', '4 - Low', '5 - Planning'];
+const RISKS = ['Extreme', 'High', 'Medium', 'Low', 'Minimal'];
+
+function ReleaseModal({ me, releases, onClose, onCreated }) {
   const [step, setStep] = useState(0);
   const [options, setOptions] = useState(null);
+  const [leads, setLeads] = useState([]);
   const [form, setForm] = useState({
-    version: '', description: '', trail: '',
+    version: '', description: '', details: '', trail: '',
+    reason: '', product_owner: '', priority: '', risk: '',
     start_date: '', start_time: '00:00', end_date: '', end_time: '23:59',
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+
+  const requester = me?.email || me?.login || '';
 
   useEffect(() => {
     getReleaseOptions()
@@ -122,11 +131,30 @@ function ReleaseModal({ onClose, onCreated }) {
           setForm((f) => ({ ...f, trail: f.trail || o.trails[0].name }));
       })
       .catch((e) => setError(e.message));
+    // Product owners are members with the technical-lead role — the ones
+    // allowed to approve PRs.
+    getMembers()
+      .then((ms) => setLeads(
+        ms.filter((m) => (m.roles || []).includes('technical-lead'))))
+      .catch(() => {});
   }, []);
+
+  // "Releases recientes" — picking one autofills the info fields, like the
+  // reference's autocomplete.
+  const copyFrom = (releaseNo) => {
+    const r = (releases || []).find((x) => x.release_no === releaseNo);
+    if (r) setForm((f) => ({
+      ...f, description: r.description || f.description,
+      details: r.details || f.details, reason: r.reason || f.reason,
+      product_owner: r.product_owner || f.product_owner,
+      priority: r.priority || f.priority, risk: r.risk || f.risk,
+    }));
+  };
 
   const stepOk = [
     form.version && form.trail && form.start_date && form.end_date,
-    form.description.trim(),
+    form.description.trim() && form.details.trim() && form.reason
+      && form.product_owner && form.priority && form.risk,
     true,
   ];
 
@@ -159,7 +187,13 @@ function ReleaseModal({ onClose, onCreated }) {
       await createRelease({
         version: form.version,
         description: form.description,
+        details: form.details,
         trail: form.trail,
+        reason: form.reason,
+        product_owner: form.product_owner,
+        requested_by: requester,
+        priority: form.priority,
+        risk: form.risk,
         planned_date: form.start_date,
         deploy_start: `${form.start_date}T${form.start_time}:00`,
         deploy_end: `${form.end_date}T${form.end_time}:59`,
@@ -279,9 +313,54 @@ function ReleaseModal({ onClose, onCreated }) {
             {step === 1 && (
               <div className="form">
                 <label className="field">
+                  <span>Releases recientes</span>
+                  <Select value="" placeholder="Buscar releases para autocompletar"
+                    onChange={copyFrom}
+                    options={(releases || []).map((r) => ({
+                      value: r.release_no,
+                      label: `${r.release_no} - ${r.description}`,
+                    }))} />
+                </label>
+                <label className="field">
+                  <span>Razón *</span>
+                  <Select value={form.reason} placeholder="Razón"
+                    onChange={(v) => setForm((f) => ({ ...f, reason: v }))}
+                    options={REASONS.map((r) => ({ value: r, label: r }))} />
+                </label>
+                <label className="field">
+                  <span>Dueño del producto *</span>
+                  <Select value={form.product_owner} placeholder="Dueño del producto"
+                    onChange={(v) => setForm((f) => ({ ...f, product_owner: v }))}
+                    options={leads.map((m) => ({
+                      value: m.github_username,
+                      label: `${m.full_name} (@${m.github_username})`,
+                    }))} />
+                </label>
+                <label className="field">
+                  <span>Solicitado por</span>
+                  <input value={requester} readOnly disabled />
+                </label>
+                <label className="field">
                   <span>Breve descripción *</span>
-                  <input value={form.description} placeholder="Actualización de perfilado"
+                  <textarea rows="3" value={form.description} placeholder="Breve descripción"
                     onChange={set('description')} />
+                </label>
+                <label className="field">
+                  <span>Descripción *</span>
+                  <textarea rows="4" value={form.details} placeholder="Descripción"
+                    onChange={set('details')} />
+                </label>
+                <label className="field">
+                  <span>Prioridad *</span>
+                  <Select value={form.priority} placeholder="Prioridad"
+                    onChange={(v) => setForm((f) => ({ ...f, priority: v }))}
+                    options={PRIORITIES.map((p) => ({ value: p, label: p }))} />
+                </label>
+                <label className="field">
+                  <span>Riesgo *</span>
+                  <Select value={form.risk} placeholder="Riesgo"
+                    onChange={(v) => setForm((f) => ({ ...f, risk: v }))}
+                    options={RISKS.map((r) => ({ value: r, label: r }))} />
                 </label>
               </div>
             )}
@@ -296,7 +375,13 @@ function ReleaseModal({ onClose, onCreated }) {
                       <td><strong>{form.trail}</strong>
                         {trailObj && <span className="muted"> ({trailObj.environments.join(' → ')})</span>}
                       </td></tr>
-                    <tr><td>Descripción:</td><td>{form.description}</td></tr>
+                    <tr><td>Razón:</td><td>{form.reason}</td></tr>
+                    <tr><td>Dueño del producto:</td><td>{form.product_owner}</td></tr>
+                    <tr><td>Solicitado por:</td><td>{requester}</td></tr>
+                    <tr><td>Prioridad:</td><td>{form.priority}</td></tr>
+                    <tr><td>Riesgo:</td><td>{form.risk}</td></tr>
+                    <tr><td>Breve descripción:</td><td>{form.description}</td></tr>
+                    <tr><td>Descripción:</td><td>{form.details}</td></tr>
                     <tr><td>Fecha de inicio:</td>
                       <td>{form.start_date} {form.start_time}</td></tr>
                     <tr><td>Fecha de finalización:</td>
