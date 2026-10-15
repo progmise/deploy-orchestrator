@@ -96,9 +96,7 @@ export default function ReleasesView({ releases, me, onChanged, onOpen }) {
 
 const WIZ_STEPS = [
   'Seleccionar release',
-  'Información de la release.1',
-  'Información de la release.2',
-  'Información de la release.3',
+  'Información de la release',
   'Resumen de la confirmación',
 ];
 
@@ -181,10 +179,11 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
   const stepOk = [
     form.version && form.trail && form.start_date && form.end_date,
     form.description.trim() && form.details.trim() && form.reason
-      && form.product_owner && form.priority && form.risk,
-    form.impact && form.platform && form.justification.trim() && form.deploy_plan.trim()
-      && form.risk_analysis.trim() && form.test_plan.trim() && form.recovery_plan,
-    form.unavailability && form.on_site_followup && form.db_change
+      && form.product_owner && form.priority && form.risk
+      && form.impact && form.platform && form.justification.trim()
+      && form.deploy_plan.trim() && form.risk_analysis.trim()
+      && form.test_plan.trim() && form.recovery_plan
+      && form.unavailability && form.on_site_followup && form.db_change
       && form.infra_change,
     true,
   ];
@@ -354,6 +353,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
 
             {step === 1 && (
               <div className="form">
+                <h3 className="form-section">Información general</h3>
                 <label className="field">
                   <span>Releases recientes</span>
                   <Select value="" placeholder="Buscar releases para autocompletar"
@@ -404,11 +404,8 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
                     onChange={(v) => setForm((f) => ({ ...f, risk: v }))}
                     options={RISKS.map((r) => ({ value: r, label: r }))} />
                 </label>
-              </div>
-            )}
 
-            {step === 2 && (
-              <div className="form">
+                <h3 className="form-section">Planes e impacto</h3>
                 <label className="field">
                   <span>Impacto *</span>
                   <Select value={form.impact} placeholder="Impacto"
@@ -448,11 +445,8 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
                     onChange={(v) => setForm((f) => ({ ...f, recovery_plan: v }))}
                     options={RECOVERY_PLANS.map((r) => ({ value: r, label: r }))} />
                 </label>
-              </div>
-            )}
 
-            {step === 3 && (
-              <div className="form">
+                <h3 className="form-section">Condiciones del despliegue</h3>
                 <label className="field">
                   <span>Indisponibilidad *</span>
                   <Select value={form.unavailability} placeholder="Indisponibilidad"
@@ -480,7 +474,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 2 && (
               <div className="summary">
                 <table className="summary-table">
                   <tbody>
@@ -528,7 +522,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
           {step > 0
             ? <button className="btn-text btn-cancel" onClick={() => setStep(step - 1)}>Atrás</button>
             : <button className="btn-text btn-cancel" onClick={onClose}>Cancelar</button>}
-          {step < 4
+          {step < 2
             ? <button className="btn-text btn-next" disabled={!stepOk[step]}
                 onClick={next}>Siguiente</button>
             : <button className="btn-text btn-next" disabled={busy} onClick={submit}>
