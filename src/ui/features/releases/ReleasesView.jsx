@@ -113,6 +113,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
   const [step, setStep] = useState(0);
   const [options, setOptions] = useState(null);
   const [leads, setLeads] = useState([]);
+  const [members, setMembers] = useState([]);
   const [form, setForm] = useState({
     version: '', description: '', details: '', trail: '',
     reason: '', product_owner: '', priority: '', risk: '',
@@ -121,7 +122,8 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
-  const requester = me?.email || me?.login || '';
+  const requester = members.find((m) => m.github_username === me?.login)?.email
+    || me?.email || me?.login || '';
 
   useEffect(() => {
     getReleaseOptions()
@@ -134,8 +136,10 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
     // Product owners are members with the technical-lead role — the ones
     // allowed to approve PRs.
     getMembers()
-      .then((ms) => setLeads(
-        ms.filter((m) => (m.roles || []).includes('technical-lead'))))
+      .then((ms) => {
+        setMembers(ms);
+        setLeads(ms.filter((m) => (m.roles || []).includes('technical-lead')));
+      })
       .catch(() => {});
   }, []);
 
@@ -332,8 +336,8 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
                   <Select value={form.product_owner} placeholder="Dueño del producto"
                     onChange={(v) => setForm((f) => ({ ...f, product_owner: v }))}
                     options={leads.map((m) => ({
-                      value: m.github_username,
-                      label: `${m.full_name} (@${m.github_username})`,
+                      value: m.email,
+                      label: `${m.full_name} — ${m.email}`,
                     }))} />
                 </label>
                 <label className="field">
