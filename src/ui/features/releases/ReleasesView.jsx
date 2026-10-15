@@ -98,6 +98,7 @@ const WIZ_STEPS = [
   'Seleccionar release',
   'Información de la release.1',
   'Información de la release.2',
+  'Información de la release.3',
   'Resumen de la confirmación',
 ];
 
@@ -111,6 +112,7 @@ const PRIORITIES = ['1 - Critical', '2 - High', '3 - Moderate', '4 - Low', '5 - 
 const RISKS = ['Extreme', 'High', 'Medium', 'Low', 'Minimal'];
 const IMPACTS = ['1 - High', '2 - Medium', '3 - Low'];
 const PLATFORMS = ['Vercel', 'Render'];
+const YES_NO = [{ value: 'Yes', label: 'Yes' }, { value: 'No', label: 'No' }];
 const RECOVERY_PLANS = [
   'N/A - First version of the product/service, there is no previous version to go back to, if it has an impact on the environment we will correct it and generate a new version',
   'N/A - Service unavailable to the user, in case of failure it will have no impact on the environment',
@@ -127,6 +129,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
     reason: '', product_owner: '', priority: '', risk: '',
     impact: '', platform: '', justification: '', deploy_plan: '', risk_analysis: '',
     test_plan: '', recovery_plan: '',
+    unavailability: '', on_site_followup: '', db_change: '', infra_change: '',
     start_date: '', start_time: '00:00', end_date: '', end_time: '23:59',
   });
   const [busy, setBusy] = useState(false);
@@ -168,6 +171,10 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
       risk_analysis: r.risk_analysis || f.risk_analysis,
       test_plan: r.test_plan || f.test_plan,
       recovery_plan: r.recovery_plan || f.recovery_plan,
+      unavailability: r.unavailability || f.unavailability,
+      on_site_followup: r.on_site_followup || f.on_site_followup,
+      db_change: r.db_change || f.db_change,
+      infra_change: r.infra_change || f.infra_change,
     }));
   };
 
@@ -177,6 +184,8 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
       && form.product_owner && form.priority && form.risk,
     form.impact && form.platform && form.justification.trim() && form.deploy_plan.trim()
       && form.risk_analysis.trim() && form.test_plan.trim() && form.recovery_plan,
+    form.unavailability && form.on_site_followup && form.db_change
+      && form.infra_change,
     true,
   ];
 
@@ -223,6 +232,10 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
         risk_analysis: form.risk_analysis,
         test_plan: form.test_plan,
         recovery_plan: form.recovery_plan,
+        unavailability: form.unavailability,
+        on_site_followup: form.on_site_followup,
+        db_change: form.db_change,
+        infra_change: form.infra_change,
         planned_date: form.start_date,
         deploy_start: `${form.start_date}T${form.start_time}:00`,
         deploy_end: `${form.end_date}T${form.end_time}:59`,
@@ -439,6 +452,35 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
             )}
 
             {step === 3 && (
+              <div className="form">
+                <label className="field">
+                  <span>Indisponibilidad *</span>
+                  <Select value={form.unavailability} placeholder="Indisponibilidad"
+                    onChange={(v) => setForm((f) => ({ ...f, unavailability: v }))}
+                    options={YES_NO} />
+                </label>
+                <label className="field">
+                  <span>Seguimiento presencial *</span>
+                  <Select value={form.on_site_followup} placeholder="Seguimiento presencial"
+                    onChange={(v) => setForm((f) => ({ ...f, on_site_followup: v }))}
+                    options={YES_NO} />
+                </label>
+                <label className="field">
+                  <span>Cambio/inclusión de la base de datos *</span>
+                  <Select value={form.db_change} placeholder="Cambio/inclusión de la base de datos"
+                    onChange={(v) => setForm((f) => ({ ...f, db_change: v }))}
+                    options={YES_NO} />
+                </label>
+                <label className="field">
+                  <span>Cambio/inclusión de infraestructuras *</span>
+                  <Select value={form.infra_change} placeholder="Cambio/inclusión de infraestructuras"
+                    onChange={(v) => setForm((f) => ({ ...f, infra_change: v }))}
+                    options={YES_NO} />
+                </label>
+              </div>
+            )}
+
+            {step === 4 && (
               <div className="summary">
                 <table className="summary-table">
                   <tbody>
@@ -462,6 +504,10 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
                     <tr><td>Análisis de riesgos e impactos:</td><td>{form.risk_analysis}</td></tr>
                     <tr><td>Plan de pruebas:</td><td>{form.test_plan}</td></tr>
                     <tr><td>Plan de recuperación:</td><td>{form.recovery_plan}</td></tr>
+                    <tr><td>Indisponibilidad:</td><td>{form.unavailability}</td></tr>
+                    <tr><td>Seguimiento presencial:</td><td>{form.on_site_followup}</td></tr>
+                    <tr><td>Cambio/inclusión de la base de datos:</td><td>{form.db_change}</td></tr>
+                    <tr><td>Cambio/inclusión de infraestructuras:</td><td>{form.infra_change}</td></tr>
                     <tr><td>Fecha de inicio:</td>
                       <td>{form.start_date} {form.start_time}</td></tr>
                     <tr><td>Fecha de finalización:</td>
@@ -482,7 +528,7 @@ function ReleaseModal({ me, releases, onClose, onCreated }) {
           {step > 0
             ? <button className="btn-text btn-cancel" onClick={() => setStep(step - 1)}>Atrás</button>
             : <button className="btn-text btn-cancel" onClick={onClose}>Cancelar</button>}
-          {step < 3
+          {step < 4
             ? <button className="btn-text btn-next" disabled={!stepOk[step]}
                 onClick={next}>Siguiente</button>
             : <button className="btn-text btn-next" disabled={busy} onClick={submit}>
