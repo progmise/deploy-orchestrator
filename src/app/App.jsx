@@ -9,6 +9,7 @@ import ReleasesView from '../ui/features/releases/ReleasesView.jsx';
 import ReleaseDetail from '../ui/features/releases/ReleaseDetail.jsx';
 import { useReleases } from '../application/useReleases.js';
 import ComponentsTable from '../ui/features/components/ComponentsTable.jsx';
+import ComponentDetail from '../ui/features/components/ComponentDetail.jsx';
 import FiltersMenu from '../ui/features/components/FiltersMenu.jsx';
 import DependencyGraph from '../ui/features/components/DependencyGraph.jsx';
 import ComponentWizard from '../ui/features/components/ComponentWizard.jsx';
@@ -31,6 +32,7 @@ export default function App() {
   const [wizardTemplate, setWizardTemplate] = useState(null);
   const [view, setView] = useState('componentes');
   const [releaseNo, setReleaseNo] = useState(null);
+  const [componentName, setComponentName] = useState(null);
   const [q, setQ] = useState('');
   const [filters, setFilters] = useState({ plantilla: '', estado: '' });
   const [collapsed, setCollapsed] = useState(false);
@@ -47,6 +49,8 @@ export default function App() {
     ? 'Componentes / Nuevo componente'
     : view === 'release-detail'
       ? 'Releases / Detalle'
+      : view === 'component-detail'
+        ? 'Componentes / Detalles del componente'
       : NAV.find((n) => n.id === view)?.label || '';
   const lower = q.toLowerCase();
 
@@ -69,6 +73,11 @@ export default function App() {
           <>
             <a onClick={() => { setView('releases'); reloadReleases(); }}>Releases</a>
             <span className="sep">/</span><span>Detalle</span>
+          </>
+        ) : view === 'component-detail' ? (
+          <>
+            <a onClick={() => { setView('componentes'); setQ(''); }}>Componentes</a>
+            <span className="sep">/</span><span>{componentName}</span>
           </>
         ) : (
           <span>{viewLabel}</span>
@@ -99,6 +108,11 @@ export default function App() {
             <ReleaseDetail number={releaseNo} />
           )}
 
+          {view === 'component-detail' && (
+            <ComponentDetail name={componentName} templates={templates}
+              manifest={manifest} onChanged={reloadCatalog} />
+          )}
+
           {view === 'componentes' && (
             <>
               <div className="card">
@@ -114,7 +128,8 @@ export default function App() {
                 <p className="muted" style={{ fontSize: 12, margin: '-8px 0 14px' }}>
                   Buscar por nombre, nombre corto o plantilla</p>
                 <ComponentsTable manifest={manifest} catalog={catalog} templates={templates}
-                  q={lower} filters={filters} onChanged={reloadCatalog} />
+                  q={lower} filters={filters} onChanged={reloadCatalog}
+                  onOpen={(n) => { setComponentName(n); setView('component-detail'); setQ(''); }} />
               </div>
               <div className="card">
                 <h2>Grafo de dependencias</h2>

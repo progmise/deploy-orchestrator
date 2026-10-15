@@ -446,3 +446,46 @@ tbody tr:hover { background: var(--panel); }
 .pill-btn { cursor: pointer; }
 .pill-btn:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
 .pill-btn:disabled { opacity: .5; cursor: wait; }
+
+/* --- Component detail (Gluon app detail) --- */
+.linklike { background: none; border: none; padding: 0; font: inherit;
+  color: inherit; cursor: pointer; text-align: left; }
+.linklike:hover strong { color: var(--teal); text-decoration: underline; }
+
+.app-detail { display: grid; grid-template-columns: 4fr 6fr; padding: 0; overflow: hidden; }
+.app-detail > section { padding: 26px 30px; min-width: 0; }
+.app-detail .app-side { border-left: 1px solid var(--line); }
+.app-hero { display: flex; align-items: center; gap: 16px; }
+.app-hero h2 { margin: 0; font-size: 24px; }
+.avatar.big { width: 58px; height: 58px; border-radius: 14px; font-size: 20px;
+  background: #3b4a8f; color: #fff; }
+.app-id { display: flex; flex-wrap: wrap; gap: 34px; margin-top: 22px; }
+.app-id label, .app-desc label, .app-links label,
+.app-meta label, .app-owners > label { display: block; font-size: 12px;
+  color: var(--muted); margin-bottom: 5px; }
+.app-id strong, .app-meta strong { font-size: 14px; }
+.app-desc, .app-links { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 16px; }
+.app-desc p { margin: 0; font-weight: 600; font-size: 14px; }
+.app-links a { display: inline-block; margin-right: 20px; font-size: 13px;
+  font-weight: 600; color: #3b4a8f; text-decoration: none; }
+.app-links a:hover { text-decoration: underline; }
+.app-meta { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.app-owners { margin-top: 18px; }
+.badge { display: inline-flex; min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: 999px; background: #eef1f6; color: var(--muted); font-size: 11px;
+  font-weight: 700; align-items: center; justify-content: center; vertical-align: 1px; }
+.owner-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.owner-chip { display: inline-flex; align-items: center; gap: 8px; font-size: 13px;
+  border: 1px solid var(--line); border-radius: 999px; background: #fff;
+  padding: 3px 12px 3px 3px; }
+.owner-chip .avatar { width: 26px; height: 26px; font-size: 10px; }
+.app-tools { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px; }
+.tools-note { font-size: 12px; margin: 0 0 10px; }
+.tools-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.tools-btns .btn { display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+.tools-btns .btn svg { width: 15px; height: 15px; }
+@media (max-width: 980px) {
+  .app-detail { grid-template-columns: 1fr; }
+  .app-detail .app-side { border-left: none; border-top: 1px solid var(--line); }
+}

@@ -16,7 +16,7 @@ const COLUMNS = [
   { key: 'estado', label: 'Estado', value: (c) => c.db?.status },
 ];
 
-export default function ComponentsTable({ manifest, catalog, templates = [], q, filters, onChanged }) {
+export default function ComponentsTable({ manifest, catalog, templates = [], q, filters, onChanged, onOpen }) {
   const [sort, setSort] = useState({ key: 'name', dir: 1 });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -77,7 +77,7 @@ export default function ComponentsTable({ manifest, catalog, templates = [], q, 
             const kind = c.db ? kindOf(c.db.template) : 'app';
             return (
               <tr key={c.name}>
-                <td><strong>{c.name}</strong></td>
+                <td><button className="linklike" onClick={() => onOpen(c.name)}><strong>{c.name}</strong></button></td>
                 <td><code>{c.db?.shortname || '—'}</code></td>
                 <td>{c.db
                   ? <>{c._tpl}{' '}
