@@ -166,6 +166,8 @@ export default function App() {
       </div>
       {wizardTemplate && (
         <ComponentWizard template={wizardTemplate}
+          components={(manifest.components || [])
+            .filter((c) => c.type !== 'configmap').map((c) => c.name)}
           onClose={() => setWizardTemplate(null)}
           onBack={() => setWizardTemplate(null)}
           onCreated={reloadCatalog} />

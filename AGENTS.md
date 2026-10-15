@@ -45,12 +45,15 @@ src/
                              app card), ComponentRuns,
                              DependencyGraph (mermaid), FiltersMenu,
                              ComponentWizard — 4 steps; "Personalización"
-                             renders the template's `fields` (select/fixed)
+                             renders the template's `fields` (select/fixed/
+                             component — the latter a catalog-component
+                             picker, e.g. `configures` on cm templates)
                              from /api/templates, answers go to
                              components.config,
                              TemplateGallery + TemplateWizard — register a
                              template repo (existing or /generate from a
-                             base) with fields + spec toggles
+                             base) with fields + spec toggles; kinds
+                             app|lib|cm (cm = ConfigMap env-var repos)
       team/MembersView.jsx   member registry + roles
       deployments/OrchRuns.jsx
 server/index.js              Express — serves dist/ + proxies ALL /api/* to

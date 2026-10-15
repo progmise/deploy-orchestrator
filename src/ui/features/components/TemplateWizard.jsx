@@ -7,10 +7,12 @@ const STEPS = ['Identificación', 'Repositorio', 'Personalización', 'Provisioni
 const KINDS = [
   { value: 'app', label: 'app — componente desplegable (se registra en el manifest)' },
   { value: 'lib', label: 'lib — librería (publica, no se despliega)' },
+  { value: 'cm', label: 'cm — configmap de un componente (env vars → Vercel)' },
 ];
 const FIELD_TYPES = [
   { value: 'select', label: 'select — el usuario elige entre opciones' },
   { value: 'fixed', label: 'fixed — valor fijo, no se pregunta' },
+  { value: 'component', label: 'component — elige un componente existente' },
 ];
 const REPO_MODES = [
   { value: 'existing', label: 'Repo existente' },
@@ -30,6 +32,11 @@ const DEFAULT_SPEC = {
     secrets: ['SONATYPE_USERNAME', 'SONATYPE_TOKEN', 'GPG_PRIVATE_KEY', 'GPG_PASSPHRASE',
       'GRAFANA_OTLP_AUTH'],
     vars: ['GRAFANA_OTLP_ENDPOINT'],
+  },
+  cm: {
+    manifest: true,
+    secrets: ['VERCEL_TOKEN'],
+    vars: ['VERCEL_ORG_ID'],
   },
 };
 
@@ -72,7 +79,7 @@ export default function TemplateWizard({ onClose, onCreated }) {
         .map((v) => ({ value: v, label: v }));
       if (!f.options.length) return;
       if (draft.def.trim()) f.default = draft.def.trim();
-    } else {
+    } else if (draft.type === 'fixed') {
       f.value = draft.def.trim();
     }
     setFields((fs) => [...fs.filter((x) => x.key !== key), f]);
@@ -211,7 +218,9 @@ export default function TemplateWizard({ onClose, onCreated }) {
                       {f.label} · {f.type}
                       {f.type === 'select'
                         ? ` (${f.options.map((o) => o.value).join(' / ')})`
-                        : ` = ${f.value}`}
+                        : f.type === 'fixed'
+                          ? ` = ${f.value}`
+                          : ' (del catálogo)'}
                     </span>
                     <button type="button" className="btn-text btn-cancel"
                       onClick={() => setFields((fs) => fs.filter((x) => x.key !== f.key))}>✕</button>
@@ -233,14 +242,23 @@ export default function TemplateWizard({ onClose, onCreated }) {
                       onChange={(v) => setDraft((d) => ({ ...d, type: v }))}
                       options={FIELD_TYPES} />
                   </label>
-                  <label className="field">
-                    <span>{draft.type === 'select' ? 'Opciones (separadas por coma)' : 'Valor fijo'}</span>
-                    <input value={draft.type === 'select' ? draft.options : draft.def}
-                      placeholder={draft.type === 'select' ? 'gitflow, trunk' : 'gitflow'}
-                      onChange={(e) => setDraft((d) => draft.type === 'select'
-                        ? { ...d, options: e.target.value } : { ...d, def: e.target.value })} />
-                  </label>
+                  {draft.type !== 'component' && (
+                    <label className="field">
+                      <span>{draft.type === 'select' ? 'Opciones (separadas por coma)' : 'Valor fijo'}</span>
+                      <input value={draft.type === 'select' ? draft.options : draft.def}
+                        placeholder={draft.type === 'select' ? 'gitflow, trunk' : 'gitflow'}
+                        onChange={(e) => setDraft((d) => draft.type === 'select'
+                          ? { ...d, options: e.target.value } : { ...d, def: e.target.value })} />
+                    </label>
+                  )}
                 </div>
+                {draft.type === 'component' && (
+                  <small className="muted">
+                    El wizard de componentes lo renderiza como un selector de
+                    componentes del catálogo (p. ej. <code>configures</code> —
+                    el componente que configura este ConfigMap).
+                  </small>
+                )}
                 {draft.type === 'select' && (
                   <label className="field"><span>Valor por defecto</span>
                     <input value={draft.def} placeholder="gitflow"

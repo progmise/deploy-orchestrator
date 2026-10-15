@@ -11,7 +11,9 @@ const STEPS = [
   'Resumen de confirmación',
 ];
 
-export default function ComponentWizard({ template, onClose, onBack, onCreated }) {
+const KIND_BADGE = { lib: 'LIB', cm: 'CM' };
+
+export default function ComponentWizard({ template, components = [], onClose, onBack, onCreated }) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({ name: '', shortname: '', repo: '', description: '' });
   const [config, setConfig] = useState(() => defaultConfig(template.fields));
@@ -28,6 +30,8 @@ export default function ComponentWizard({ template, onClose, onBack, onCreated }
   const repoOk = REPO_RE.test(repoName);
   const shortOk = SHORTNAME_RE.test(shortname);
   const descOk = form.description.trim().length > 0;
+  const fieldsOk = (template.fields || [])
+    .every((f) => f.type !== 'component' || config[f.key]);
 
   const submit = async () => {
     setBusy(true);
@@ -67,7 +71,7 @@ export default function ComponentWizard({ template, onClose, onBack, onCreated }
       <div className="modal modal-wiz" onClick={(e) => e.stopPropagation()}>
         <div className="wiz-cols">
           <aside className="wiz-side">
-            <span className="wiz-kind">{template.kind === 'lib' ? 'LIB' : 'API'}</span>
+            <span className="wiz-kind">{KIND_BADGE[template.kind] || 'API'}</span>
             <div className="wiz-tpl">{template.display_name || template.name}</div>
             <a className="chip tpl-doc" href={`https://github.com/${template.repo}#readme`}
               target="_blank" rel="noreferrer">
@@ -118,14 +122,22 @@ export default function ComponentWizard({ template, onClose, onBack, onCreated }
                 {(template.fields || []).map((f) => (
                   <label key={f.key} className="field">
                     <span>{f.label}{f.required === false ? '' : ''}</span>
-                    {f.type === 'select'
-                      ? <select value={config[f.key] ?? f.default}
+                    {f.type === 'component'
+                      ? <select value={config[f.key] ?? ''}
                           onChange={(e) => setConfig((c) => ({ ...c, [f.key]: e.target.value }))}>
-                          {(f.options || []).map((o) => (
-                            <option key={o.value} value={o.value}>{o.label}</option>
+                          <option value="" disabled>Seleccionar componente…</option>
+                          {components.map((n) => (
+                            <option key={n} value={n}>{n}</option>
                           ))}
                         </select>
-                      : <input value={f.value} readOnly disabled />}
+                      : f.type === 'select'
+                        ? <select value={config[f.key] ?? f.default}
+                            onChange={(e) => setConfig((c) => ({ ...c, [f.key]: e.target.value }))}>
+                            {(f.options || []).map((o) => (
+                              <option key={o.value} value={o.value}>{o.label}</option>
+                            ))}
+                          </select>
+                        : <input value={f.value} readOnly disabled />}
                     {f.key === 'branch_strategy' && (
                       <small className="muted">
                         {config[f.key] === 'trunk'
@@ -149,7 +161,8 @@ export default function ComponentWizard({ template, onClose, onBack, onCreated }
                     {(template.fields || []).map((f) => (
                       <tr key={f.key}>
                         <td>{f.label}:</td>
-                        <td>{f.type === 'fixed' ? f.value : configLabel(template.fields, f.key, config[f.key])}</td>
+                        <td>{f.type === 'select' ? configLabel(template.fields, f.key, config[f.key])
+                          : f.type === 'fixed' ? f.value : config[f.key] || '—'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -160,7 +173,8 @@ export default function ComponentWizard({ template, onClose, onBack, onCreated }
                     ? ' con main protegida'
                     : ' con main y development protegidas'}
                   , se configurarán secrets/variables
-                  {template.kind === 'app' && ' y se abrirá un PR de registro en deploy-manifest'}.
+                  {(template.spec?.manifest ?? template.kind === 'app')
+                    && ' y se abrirá un PR de registro en deploy-manifest'}.
                 </p>
               </div>
             )}
@@ -202,7 +216,8 @@ export default function ComponentWizard({ template, onClose, onBack, onCreated }
               : <button className="btn-text btn-next" onClick={onClose}>Listo</button>
             : step < 2
               ? <button className="btn-text btn-next"
-                  disabled={step === 0 && (!nameOk || !repoOk || !shortOk || !descOk)}
+                  disabled={(step === 0 && (!nameOk || !repoOk || !shortOk || !descOk))
+                    || (step === 1 && !fieldsOk)}
                   onClick={() => setStep(step + 1)}>Siguiente</button>
               : <button className="btn-text btn-next" disabled={busy} onClick={submit}>
                   {busy ? 'Creando…' : 'Crear componente'}
