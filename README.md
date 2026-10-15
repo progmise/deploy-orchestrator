@@ -7,15 +7,21 @@ orchestrator. The backend lives in a separate repo:
 GitHub reads use the caller's own token (HttpOnly cookie — nothing secret in
 the browser).
 
-Shows: the current release manifest (components, tags, `needs` graph via
-Mermaid), the release list (draft = pending approval, published = deployable),
-orchestrated deploy runs, and each component's latest `deploy.yml` run.
+Sidebar (Gluon-style): **Aplicación** (platform detail card: manifest
+version, component/env counts, lifecycle, responsables), **Componentes**
+(table + dependency graph), **Equipo** (member registry + roles),
+**Despliegues** (orchestrated runs joined to their RLSE record) and
+**Releases** (RLSE registry — draft = pending approval, published =
+deployable; detail shows the environment lifecycle + trails).
 
 The **Componentes** view merges the manifest with the Supabase-backed
 component catalog — a **Nuevo componente +** wizard (template → info →
-summary) provisions a repo from a template, its Vercel project and
-secrets/vars, and opens the manifest registration PR. Failed components
-can be retried in place.
+personalización → summary) provisions a repo from a template, its Vercel
+project and secrets/vars, and opens the manifest registration PR. Clicking a
+component opens its detail card (status, links, responsables, tools); failed
+components can be retried in place. The gallery's **Nueva plantilla +**
+wizard registers an existing template repo (or generates one from a base)
+with its `fields` + provisioning `spec` — no API code change needed.
 
 ## Stack
 
