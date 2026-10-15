@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createTemplate, getPlatformKeys } from '../../../infrastructure/api/catalogApi.js';
 import Select from '../../components/Select.jsx';
+import { Ico, ICON } from '../../components/Icons.jsx';
 
 const STEPS = ['Identificación', 'Repositorio', 'Personalización', 'Provisioning', 'Resumen'];
 const KINDS = [
@@ -123,14 +124,17 @@ export default function TemplateWizard({ onClose, onCreated }) {
         <div className="wiz-cols">
           <aside className="wiz-side">
             <span className="wiz-kind">Component Management</span>
-            <span className="wiz-tpl">Nueva plantilla</span>
+            <div className="wiz-tpl">Nueva plantilla</div>
+            <a className="chip tpl-doc"
+              href="https://github.com/progmise/deploy-orchestrator-api#readme"
+              target="_blank" rel="noreferrer">
+              <Ico d={ICON.doc} />Documentación ↗</a>
             <div className="wiz-steps-v">
               {STEPS.map((label, i) => (
-                <div key={label}
+                <span key={label}
                   className={`wiz-stepv${i === step ? ' active' : ''}${i < step ? ' done' : ''}`}>
-                  <span className="wiz-num">{i < step ? '✓' : i + 1}</span>
-                  <span>{label}</span>
-                </div>
+                  <span className="n">{i < step ? '✓' : i + 1}</span>{label}
+                </span>
               ))}
             </div>
           </aside>
