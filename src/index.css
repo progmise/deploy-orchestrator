@@ -316,12 +316,6 @@ tbody tr:hover { background: var(--panel); }
 }
 
 .form { display: flex; flex-direction: column; gap: 14px; }
-.form-section {
-  margin: 10px 0 -4px; font-size: 12px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .5px; color: var(--teal);
-  border-bottom: 1px solid var(--line); padding-bottom: 6px;
-}
-.form-section:first-child { margin-top: 0; }
 .field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
 .field-row { display: flex; gap: 12px; }
 .field-row .field { flex: 1; }
