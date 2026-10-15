@@ -10,6 +10,7 @@ import ReleaseDetail from '../ui/features/releases/ReleaseDetail.jsx';
 import { useReleases } from '../application/useReleases.js';
 import ComponentsTable from '../ui/features/components/ComponentsTable.jsx';
 import ComponentDetail from '../ui/features/components/ComponentDetail.jsx';
+import ApplicationView from '../ui/features/app/ApplicationView.jsx';
 import FiltersMenu from '../ui/features/components/FiltersMenu.jsx';
 import DependencyGraph from '../ui/features/components/DependencyGraph.jsx';
 import ComponentWizard from '../ui/features/components/ComponentWizard.jsx';
@@ -19,6 +20,7 @@ import MembersView from '../ui/features/team/MembersView.jsx';
 import { useMembers } from '../application/useMembers.js';
 
 const NAV = [
+  { id: 'aplicacion', label: 'Aplicación', icon: ICON.logo },
   { id: 'componentes', label: 'Componentes', icon: ICON.componentes },
   { id: 'equipo', label: 'Equipo', icon: ICON.equipo },
   { id: 'despliegues', label: 'Despliegues', icon: ICON.despliegues },
@@ -30,7 +32,7 @@ export default function App() {
   const { manifest, runs, deployments, catalog, templates, error,
     reloadCatalog, reloadTemplates } = useDashboardData(me);
   const [wizardTemplate, setWizardTemplate] = useState(null);
-  const [view, setView] = useState('componentes');
+  const [view, setView] = useState('aplicacion');
   const [releaseNo, setReleaseNo] = useState(null);
   const [componentName, setComponentName] = useState(null);
   const [q, setQ] = useState('');
@@ -111,6 +113,10 @@ export default function App() {
           {view === 'component-detail' && (
             <ComponentDetail name={componentName} templates={templates}
               manifest={manifest} onChanged={reloadCatalog} />
+          )}
+
+          {view === 'aplicacion' && (
+            <ApplicationView manifest={manifest} />
           )}
 
           {view === 'componentes' && (

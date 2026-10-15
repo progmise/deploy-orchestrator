@@ -4,6 +4,10 @@ import { apiGet } from './client.js';
 
 const MANIFEST_REPO = 'progmise/deploy-manifest';
 
+export function getRepo(repo = MANIFEST_REPO) {
+  return apiGet(`/api/gh/repos/${repo}`);
+}
+
 export async function getManifest() {
   const text = await (await fetch('/api/manifest')).text();
   return yaml.load(text);
