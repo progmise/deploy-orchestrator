@@ -26,7 +26,8 @@ const NAV = [
 
 export default function App() {
   const me = useSession();
-  const { manifest, runs, deployments, catalog, templates, error, reloadCatalog } = useDashboardData(me);
+  const { manifest, runs, deployments, catalog, templates, error,
+    reloadCatalog, reloadTemplates } = useDashboardData(me);
   const [wizardTemplate, setWizardTemplate] = useState(null);
   const [view, setView] = useState('componentes');
   const [releaseNo, setReleaseNo] = useState(null);
@@ -127,7 +128,8 @@ export default function App() {
           )}
 
           {view === 'nuevo-componente' && (
-            <TemplateGallery templates={templates} onPick={setWizardTemplate} />
+            <TemplateGallery templates={templates} onPick={setWizardTemplate}
+              onChanged={reloadTemplates} />
           )}
 
           {view === 'despliegues' && (

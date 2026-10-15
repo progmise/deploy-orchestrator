@@ -5,6 +5,10 @@ export function getTemplates() {
   return apiGet('/api/templates');
 }
 
+export function createTemplate(body) {
+  return apiSend('/api/templates', 'POST', body);
+}
+
 export function getComponents() {
   return apiGet('/api/components');
 }

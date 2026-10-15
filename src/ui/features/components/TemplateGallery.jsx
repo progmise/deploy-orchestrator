@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { SearchRow } from '../../components/Feedback.jsx';
 import { Ico, ICON } from '../../components/Icons.jsx';
+import TemplateWizard from './TemplateWizard.jsx';
 
 // Template catalog page — the "Nuevo componente" destination. Picking a
 // card opens the stepped wizard (Información → Personalización → Resumen).
-export default function TemplateGallery({ templates, onPick }) {
+export default function TemplateGallery({ templates, onPick, onChanged }) {
   const [q, setQ] = useState('');
   const [kind, setKind] = useState('all');
   const [mode, setMode] = useState('grid');
+  const [showWizard, setShowWizard] = useState(false);
   const shown = (templates || []).filter((t) =>
     (kind === 'all' || t.kind === kind)
     && (!q || [t.name, t.display_name, t.description].join(' ').toLowerCase().includes(q)));
@@ -40,6 +42,8 @@ export default function TemplateGallery({ templates, onPick }) {
               <button className={mode === 'list' ? 'active' : ''} title="Lista"
                 onClick={() => setMode('list')}><Ico d={ICON.list} /></button>
             </span>
+            <button className="btn btn-primary"
+              onClick={() => setShowWizard(true)}>Nueva plantilla +</button>
           </>
         } />
       </div>
@@ -81,6 +85,9 @@ export default function TemplateGallery({ templates, onPick }) {
       )}
       {templates && !shown.length && <p className="muted">Sin plantillas para ese filtro.</p>}
       </div>
+      {showWizard && (
+        <TemplateWizard onClose={() => setShowWizard(false)} onCreated={onChanged} />
+      )}
     </div>
   );
 }

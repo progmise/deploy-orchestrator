@@ -16,6 +16,10 @@ export const useDashboardData = (me) => {
     () => getComponents().then(setCatalog).catch(() => setCatalog([])),
     [],
   );
+  const reloadTemplates = useCallback(
+    () => getTemplates().then(setTemplates).catch(() => setTemplates([])),
+    [],
+  );
 
   useEffect(() => {
     if (!me || me.forbidden) return;
@@ -27,8 +31,9 @@ export const useDashboardData = (me) => {
       .then(([m, o, d]) => { setManifest(m); setRuns(o); setDeployments(d); })
       .catch((e) => setError(e.message));
     reloadCatalog();
-    getTemplates().then(setTemplates).catch(() => setTemplates([]));
-  }, [me, reloadCatalog]);
+    reloadTemplates();
+  }, [me, reloadCatalog, reloadTemplates]);
 
-  return { manifest, runs, deployments, catalog, templates, error, reloadCatalog };
+  return { manifest, runs, deployments, catalog, templates, error,
+    reloadCatalog, reloadTemplates };
 };
