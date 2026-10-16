@@ -10,9 +10,13 @@ the browser).
 Sidebar (Gluon-style): **Aplicación** (platform detail card: manifest
 version, component/env counts, lifecycle, responsables), **Componentes**
 (table + dependency graph), **Equipo** (member registry + roles),
-**Despliegues** (orchestrated runs joined to their RLSE record) and
+**Despliegues** (orchestrated runs joined to their RLSE record),
 **Releases** (RLSE registry — draft = pending approval, published =
-deployable; detail shows the environment lifecycle + trails).
+deployable; detail shows the environment lifecycle + trails) and
+**Seguridad** (secret registry per environment — names and metadata only;
+**Nuevo Secreto** writes the value straight to the credential store,
+role-gated: developers write `cert`/`pre`, `pro` requires technical-lead or
+product-owner).
 
 The **Componentes** view merges the manifest with the Supabase-backed
 component catalog — a **Nuevo componente +** wizard (template → info →
