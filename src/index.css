@@ -489,3 +489,20 @@ tbody tr:hover { background: var(--panel); }
   .app-detail { grid-template-columns: 1fr; }
   .app-detail .app-side { border-left: none; border-top: 1px solid var(--line); }
 }
+
+/* Seguridad — secrets registry (Gluon "Secretos" layout) */
+.sec-filters { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap;
+  margin-bottom: 6px; }
+.sec-filter { min-width: 190px; }
+.sec-filter.grow { flex: 1; min-width: 240px; }
+.sec-filter .sel { width: 100%; }
+.sec-filter .sel-btn { width: 100%; }
+.sec-new { margin-left: auto; margin-bottom: 2px; }
+.empty-box { text-align: center; padding: 34px 0; }
+.td-actions { text-align: right; width: 80px; }
+.secret-value { display: flex; gap: 8px; }
+.secret-value input { flex: 1; }
+.sec-summary { display: flex; flex-direction: column; gap: 6px;
+  border-top: 1px solid var(--line); padding-top: 12px; }
+.sec-summary span { font-weight: 600; font-size: 13px; }
+.sec-summary code { color: var(--muted); }

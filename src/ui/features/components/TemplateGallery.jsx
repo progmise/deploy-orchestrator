@@ -29,7 +29,8 @@ export default function TemplateGallery({ templates, onPick, onChanged }) {
         action={
           <>
             <span className="chips" style={{ marginLeft: 'auto' }}>
-              {[['all', 'Todas'], ['app', 'Apps'], ['lib', 'Libs'], ['cm', 'CMs']].map(([v, l]) => (
+              {[['all', 'Todas'], ['app', 'Apps'], ['lib', 'Libs'], ['cm', 'CMs'],
+                ['secrets', 'Secrets']].map(([v, l]) => (
                 <button key={v}
                   className={`chip${kind === v ? ' chip-teal' : ''}`}
                   style={{ cursor: 'pointer', border: 'none' }}
@@ -56,7 +57,8 @@ export default function TemplateGallery({ templates, onPick, onChanged }) {
               onClick={() => onPick(t)} onKeyDown={(e) => e.key === 'Enter' && onPick(t)}>
               <div className="tpl-card-head">
                 <span className="tpl-meta">
-                  {t.kind === 'lib' ? 'Lib' : t.kind === 'cm' ? 'CM' : 'App'}
+                  {t.kind === 'lib' ? 'Lib' : t.kind === 'cm' ? 'CM'
+                    : t.kind === 'secrets' ? 'Sec' : 'App'}
                   <span className={`chip${t.kind === 'lib' ? '' : ' chip-teal'}`}>{t.kind}</span>
                 </span>
                 <strong>{t.display_name || t.name}</strong>

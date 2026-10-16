@@ -17,12 +17,14 @@ import ComponentWizard from '../ui/features/components/ComponentWizard.jsx';
 import TemplateGallery from '../ui/features/components/TemplateGallery.jsx';
 import OrchRuns from '../ui/features/deployments/OrchRuns.jsx';
 import MembersView from '../ui/features/team/MembersView.jsx';
+import SecurityView from '../ui/features/security/SecurityView.jsx';
 import { useMembers } from '../application/useMembers.js';
 
 const NAV = [
   { id: 'aplicacion', label: 'Aplicación', icon: ICON.logo },
   { id: 'componentes', label: 'Componentes', icon: ICON.componentes },
   { id: 'equipo', label: 'Equipo', icon: ICON.equipo },
+  { id: 'seguridad', label: 'Seguridad', icon: ICON.seguridad },
   { id: 'despliegues', label: 'Despliegues', icon: ICON.despliegues },
   { id: 'releases', label: 'Releases', icon: ICON.releases },
 ];
@@ -148,6 +150,10 @@ export default function App() {
             <MembersView members={members} onChanged={reloadMembers} />
           )}
 
+          {view === 'seguridad' && (
+            <SecurityView me={me} />
+          )}
+
           {view === 'nuevo-componente' && (
             <TemplateGallery templates={templates} onPick={setWizardTemplate}
               onChanged={reloadTemplates} />
@@ -167,7 +173,7 @@ export default function App() {
       {wizardTemplate && (
         <ComponentWizard template={wizardTemplate}
           components={(manifest.components || [])
-            .filter((c) => c.type !== 'configmap').map((c) => c.name)}
+            .filter((c) => !c.type || c.type === 'app').map((c) => c.name)}
           onClose={() => setWizardTemplate(null)}
           onBack={() => setWizardTemplate(null)}
           onCreated={reloadCatalog} />

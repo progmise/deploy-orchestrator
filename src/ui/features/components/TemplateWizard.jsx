@@ -8,6 +8,7 @@ const KINDS = [
   { value: 'app', label: 'app — componente desplegable (se registra en el manifest)' },
   { value: 'lib', label: 'lib — librería (publica, no se despliega)' },
   { value: 'cm', label: 'cm — configmap de un componente (env vars → Vercel)' },
+  { value: 'secrets', label: 'secrets — secrets de un componente (Vault → Vercel sensitive)' },
 ];
 const FIELD_TYPES = [
   { value: 'select', label: 'select — el usuario elige entre opciones' },
@@ -37,6 +38,11 @@ const DEFAULT_SPEC = {
     manifest: true,
     secrets: ['VERCEL_TOKEN'],
     vars: ['VERCEL_ORG_ID'],
+  },
+  secrets: {
+    manifest: true,
+    secrets: ['VERCEL_TOKEN', 'SUPABASE_SERVICE_ROLE_KEY'],
+    vars: ['VERCEL_ORG_ID', 'SUPABASE_URL'],
   },
 };
 

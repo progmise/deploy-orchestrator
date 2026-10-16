@@ -24,6 +24,7 @@ export const ICON = {
   play: 'M6 4l14 8-14 8z',
   calendar: 'M3 5h18v16H3z M3 10h18 M8 3v4 M16 3v4',
   refresh: 'M23 4v6h-6 M1 20v-6h6 M3.5 9a9 9 0 0 1 14.9-3.4L23 10 M1 14l4.6 4.4A9 9 0 0 0 20.5 15',
+  seguridad: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M9 12l2 2 4-4',
 };
 
 export const Ico = ({ d }) => (

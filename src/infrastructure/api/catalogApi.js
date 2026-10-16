@@ -69,3 +69,13 @@ export function deployRelease(number, environment) {
 export function getDeployments() {
   return apiGet('/api/deployments');
 }
+
+// Application secrets registry (Seguridad view) — names only; values are
+// write-only via POST. Environment access is role-gated server-side.
+export function getSecrets(environment) {
+  return apiGet(`/api/secrets?environment=${encodeURIComponent(environment)}`);
+}
+
+export function putSecret(body) {
+  return apiSend('/api/secrets', 'POST', body);
+}

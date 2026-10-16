@@ -31,7 +31,8 @@ src/
     catalogApi.js            /api/templates, /api/components*, /api/members,
                              /api/platform/keys, /api/deployments,
                              /api/releases* (RLSE list/create/detail/
-                             publish/deploy — server-side GitHub actions)
+                             publish/deploy — server-side GitHub actions),
+                             /api/secrets (list names + write-only upsert)
   ui/
     components/              shared presentational (Feedback, Icons,
                              Select/DateField/TimeField combos — popovers
@@ -53,7 +54,14 @@ src/
                              TemplateGallery + TemplateWizard — register a
                              template repo (existing or /generate from a
                              base) with fields + spec toggles; kinds
-                             app|lib|cm (cm = ConfigMap env-var repos)
+                             app|lib|cm|secrets (cm = ConfigMap env-var
+                             repos, secrets = declared-name secret repos)
+      security/SecurityView.jsx  Seguridad — secret name registry per env
+                                (filters: type/env/name; names + metadata
+                                only, never values), "Nuevo Secreto" two-step
+                                modal; env options gated by /api/me
+                                `secret_envs` (developer: cert/pre; leads +
+                                POs: also pro)
       team/MembersView.jsx   member registry + roles
       deployments/OrchRuns.jsx
 server/index.js              Express — serves dist/ + proxies ALL /api/* to
